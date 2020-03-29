@@ -1,0 +1,19 @@
+{
+  "name": "oblong",
+  "version": "0.0.1",
+  "description": "Meta-framework for productive React+Redux development",
+  "main": "src/oblong.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/traviswatsonws/oblong.git"
+  },
+  "author": "Travis Watson",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/traviswatsonws/oblong/issues"
+  },
+  "homepage": "https://github.com/traviswatsonws/oblong#readme"
+}
