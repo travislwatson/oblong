@@ -1,68 +1,134 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Getting Started
 
-## Available Scripts
+Install Oblong using `npm i oblong` or `yarn add oblong`.
 
-In the project directory, you can run:
+Then wrap the root of your application with `<OblongApp>` like so:
 
-### `npm start`
+```js
+import React from 'react'
+import { OblongApp } from 'oblong'
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+export const App = () => (
+  <OblongApp>
+    <h1>Hello World</h1>
+  </OblongApp>
+)
+```
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+That's it! Now you can use all the features of Oblong.
 
-### `npm test`
+# Fundamentals
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Oblong aims to provide the full power of React and Redux when you need it, but the standard API is both extremely powerful and simple. It consists of four atomic building blocks:
 
-### `npm run build`
+1. **State** - holds all your application data
+2. **Command** - accepts user input and interact with the outside world
+3. **Query** - transforms your normalized state into a useful, clean representation
+4. **View** - interacts with the user
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Hopefully these are all common names, and you can deduce from them what type of code should go where, but lets explore each one.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+## State
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+State can be anything which can be stored in Redux. This normally means anything serializable.
 
-### `npm run eject`
+```js
+import { O } from 'oblong'
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+export const [name, setName] = O.createState()
+  .withDefault('John Doe')
+  .as('user.profile.name')
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Okay, so we're creating a piece of state which has a default of `'John Doe'`. So far so good, but what's the `as` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `setName('Jane Doe')`, then our state tree would look like:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```json
+{
+  "user": {
+    "profile": {
+      "name": "Jane Doe"
+    }
+  }
+}
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+While highly recommended, both the default and the locator are optional. `O.createState()` will create a unique piece of state with a default value of `undefined`.
 
-## Learn More
+The output is an array so you can use array destructuring. The format for destructuring is `[get: Query, set: Command]`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+There's surprisingly little magic here, but one thing worth mentioning: in debug mode, your object is frozen to avoid incidental mutation. This is a development-time feature that does not affect production code (for performance considerations).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Command
 
-### Code Splitting
+Commands encapsulate all your application side effects. This is where all your imperative code should live.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+```js
+import { O } from 'oblong'
+import { newName, newEmailAddress, setProfile } from './profile'
 
-### Analyzing the Bundle Size
+// There's a lot going on here, on purpose! Side effects are complicated, it's better to be realistic
+export const saveProfile = O.createCommand()
+  // These are all the dependencies our command needs. Can be queries or other commands
+  .with({ newName, newEmailAddress, setProfile })
+  // The dependencies are available on this o. argument with TypeScript powered autocompletion
+  .as(async (o) => {
+    try {
+      const response = await fetch('/profile', {
+        method: 'PUT',
+        // For queries, you can use the values directly
+        body: { name: o.newName, emailAddress: o.newEmailAddress },
+      })
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+      const updatedProfile = await response.json()
 
-### Making a Progressive Web App
+      // For commands, call them as regular functions
+      o.setProfile(updatedProfile)
+    } catch (e) {
+      // Oblong provides some helpers by default. One of them is a logError function
+      o.logError('Unable to save user profile.')
+    }
+  })
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+Again, while highly recommended, `with` and `as` are optional. Nothing more than `O.createCommand()` is required to create a no-op command.
 
-### Advanced Configuration
+## Query
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+Queries allow your commands to remain clean and simple and your state to remain normalized. They can be as simple or as complex as you would like, but it is important to keep them declarative. This is where your functional programming prowess can shine!
 
-### Deployment
+```js
+import { O } from 'oblong'
+import { firstName, middleInitial, lastName } from './profile'
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+const middleInitialWithDot = O.createQuery()
+  .with({ middleInitial })
+  .as((o) => (o.middleInitial ? `${o.middleInitial}.` : ''))
 
-### `npm run build` fails to minify
+export const fullName = O.createQuery()
+  .with({ firstName, middleInitialWithDot, lastName })
+  .as((o) => `${o.firstName} ${o.middleInitialWithDot} ${o.lastName}`)
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Queries tend to work better when they're smaller. As a general rule of thumb, if the selector gets large enough for you to want an explicit `return` lambda just due to its complexity, maybe break it down.
+
+## View
+
+Last, but far from least, views wrap all your hard work creating state, commands, and queries into a neat package for your user:
+
+```js
+import { O } from 'oblong'
+import { name, setName, saveProfile } from './profile'
+
+export const EditProfile = O.createView()
+  .with({ name, setName, saveProfile })
+  .as((o) => (
+    <>
+      <label>
+        Name: <input type="text" value={o.name} onChange={o.setName} />
+      </label>
+      <button type="button" onClick={saveProfile}>
+        Save
+      </button>
+    </>
+  ))
+```
