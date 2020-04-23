@@ -1,8 +1,8 @@
-# Getting Started
+# Installation
 
-Install Oblong using `npm i oblong` or `yarn add oblong`.
+Install Oblong from `npm i oblong`.
 
-Then wrap the root of your application with `<OblongApp>` like so:
+Wrap the root of your application with `<OblongApp>`:
 
 ```js
 import React from 'react'
@@ -15,22 +15,22 @@ export const App = () => (
 )
 ```
 
-That's it! Now you can use all the features of Oblong.
+Congratulations, you now have a fully configured Oblong application!
 
 # Quick Start Guide
 
-Oblong aims to provide the full power of React and Redux when you need it, but the standard API is both extremely powerful and simple. It consists of four atomic building blocks:
+Oblong revolves around four fundamental atomic building blocks:
 
-1. **State** - holds all your application data
-2. **Command** - accepts user input and interact with the outside world
-3. **Query** - transforms your normalized state into a useful, clean representation
-4. **View** - interacts with the user
+1. **State** - where you store everything in a normalized way
+2. **Command** - how you handle user input and interact with the outside world (side effects)
+3. **Query** - transforms your normalized state into more useful representations
+4. **View** - renders all your components and interacts with the user
 
-Hopefully these are all common names, and you can deduce from them what type of code should go where, but lets explore each one.
+Hopefully the name of each of these gives you a clue to their purpose. Let's explore an example of each of them.
 
 ## State
 
-State can be anything which can be stored in Redux. This normally means anything serializable.
+State is anything you wish to store. It can be simple values like strings, numbers, or booleans. It can be complex objects or arrays.
 
 ```js
 import { O } from 'oblong'
@@ -54,39 +54,25 @@ Okay, so we're creating a piece of state which has a default of `'John Doe'`. So
 
 While highly recommended, both the default and the locator are optional. `O.createState()` will create a unique piece of state with a default value of `undefined`.
 
-The output is an array so you can use array destructuring. The format for destructuring is `[get: Query, set: Command]`.
-
-There's surprisingly little magic here, but one thing worth mentioning: in debug mode, your object is frozen to avoid incidental mutation. This is a development-time feature that does not affect production code (for performance considerations).
-
 ## Command
 
 Commands encapsulate all your application side effects. This is where all your imperative code should live.
 
 ```js
 import { O } from 'oblong'
-import { newName, newEmailAddress, setProfile } from './profile'
+import { newName, setProfile } from './profile'
 
-// There's a lot going on here, on purpose! Side effects are complicated, it's better to be realistic
 export const saveProfile = O.createCommand()
-  // These are all the dependencies our command needs. Can be queries or other commands
-  .with({ newName, newEmailAddress, setProfile })
-  // The dependencies are available on this o. argument with TypeScript powered autocompletion
+  .with({ newName, setProfile })
   .as(async (o) => {
-    try {
-      const response = await fetch('/profile', {
-        method: 'PUT',
-        // For queries, you can use the values directly
-        body: { name: o.newName, emailAddress: o.newEmailAddress },
-      })
+    const response = await fetch('/profile', {
+      method: 'PUT',
+      body: { name: o.newName },
+    })
 
-      const updatedProfile = await response.json()
+    const updatedProfile = await response.json()
 
-      // For commands, call them as regular functions
-      o.setProfile(updatedProfile)
-    } catch (e) {
-      // Oblong provides some helpers by default. One of them is a logError function
-      o.logError('Unable to save user profile.')
-    }
+    o.setProfile(updatedProfile)
   })
 ```
 
@@ -94,7 +80,7 @@ Again, while highly recommended, `with` and `as` are optional. Nothing more than
 
 ## Query
 
-Queries allow your commands to remain clean and simple and your state to remain normalized. They can be as simple or as complex as you would like, but it is important to keep them declarative. This is where your functional programming prowess can shine!
+Oblong is designed for normalized state storage, which mean queries play a key role in making your application fast and organized. They should be pure declarative functions: use only the inputs and return only the outputs.
 
 ```js
 import { O } from 'oblong'
@@ -109,7 +95,7 @@ export const fullName = O.createQuery()
   .as((o) => `${o.firstName} ${o.middleInitialWithDot} ${o.lastName}`)
 ```
 
-Queries tend to work better when they're smaller. As a general rule of thumb, if the selector gets large enough for you to want an explicit `return` lambda just due to its complexity, maybe break it down.
+Queries tend to be more manageable when they're smaller. As a general rule of thumb, if the selector gets large enough for you to want an explicit `return` lambda just due to its complexity, consider breaking it down.
 
 ## View
 
