@@ -1,5 +1,3 @@
 import { view } from './view'
 
-export const O = {
-  view,
-}
+export const O = {}

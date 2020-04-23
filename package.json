@@ -2,8 +2,8 @@
   "name": "oblong",
   "version": "0.0.1",
   "description": "Meta-framework for productive React+Redux development",
-  "module": "src/oblong.js",
-  "types": "src/oblong.d.ts",
+  "module": "dist/oblong.js",
+  "types": "dist/oblong.d.ts",
   "sideEffects": false,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,10 +18,20 @@
     "url": "https://github.com/traviswatsonws/oblong/issues"
   },
   "homepage": "https://github.com/traviswatsonws/oblong#readme",
-  "dependencies": {
+  "peerDependencies": {
     "react": "<17",
     "react-redux": "<8",
-    "react-router": "<6",
+    "react-router-dom": "<6",
+    "redux": "<5",
+    "reselect": "<5"
+  },
+  "devDependencies": {
+    "@types/react": "<17",
+    "@types/react-redux": "<8",
+    "@types/react-router-dom": "<6",
+    "react": "<17",
+    "react-redux": "<8",
+    "react-router-dom": "<6",
     "redux": "<5",
     "reselect": "<5"
   }
