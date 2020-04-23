@@ -1,5 +1,7 @@
 import { useDispatch, useSelector, useStore } from 'react-redux'
 
+// Maybe something like this for defining dependency types: https://stackoverflow.com/a/44441178
+// Or maybe in here, check out the Record<T, K> stuff too: https://stackoverflow.com/a/39281228
 interface ViewConfiguration<TDependencies> {
   displayName: string
   dependencies: TDependencies

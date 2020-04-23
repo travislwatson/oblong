@@ -17,7 +17,7 @@ export const App = () => (
 
 That's it! Now you can use all the features of Oblong.
 
-# Fundamentals
+# Quick Start Guide
 
 Oblong aims to provide the full power of React and Redux when you need it, but the standard API is both extremely powerful and simple. It consists of four atomic building blocks:
 
