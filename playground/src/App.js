@@ -1,5 +1,5 @@
 import React from 'react'
-import { OblongApp } from './OblongApp'
+import { OblongApp } from 'oblong'
 
 export const App = () => (
   <OblongApp>
