@@ -116,9 +116,9 @@ type AnyFunc =
   | SevenReturn
   | EightReturn
 
-export interface OblongCommand extends AnyFunc {
-  name: string
-}
+// export interface OblongCommand extends AnyFunc {
+//   name: string
+// }
 
 type Query = <TReturn>(state: any) => TReturn
 

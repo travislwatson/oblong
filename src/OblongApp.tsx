@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Provider } from 'react-redux'
-import { createStore, combineReducers } from 'redux'
+import { applyMiddleware, createStore } from 'redux'
+import { composeWithDevTools } from 'redux-devtools-extension'
 
 type Props = {
   children: React.ReactNode
@@ -11,8 +12,14 @@ const rootReducer = (state, action: any): any => {
   return state
 }
 
-const store = createStore(rootReducer)
+const makeStore = () => {
+  const middlewares = []
+  const middleWareEnhancer = applyMiddleware(...middlewares)
+
+  return createStore(rootReducer, composeWithDevTools(middleWareEnhancer))
+}
 
 export const OblongApp: React.FC<Props> = ({ children }) => {
+  const store = React.useMemo(makeStore, [])
   return <Provider store={store}>{children}</Provider>
 }

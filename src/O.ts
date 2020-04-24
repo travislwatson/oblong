@@ -1,3 +1,3 @@
-import { view } from './view'
+import { createState } from './state'
 
-export const O = {}
+export const O = { createState }

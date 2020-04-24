@@ -1,1 +1,3 @@
-export declare const O: {};
+export declare const O: {
+    createState: () => import("./state").OblongState<undefined>;
+};
