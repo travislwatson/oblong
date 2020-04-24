@@ -6,18 +6,21 @@ interface StateConfiguration<TValue extends StateValue> {
 }
 interface SetAction<TValue> extends Action {
     meta: {
-        isOblongSetter: true;
+        isOblong: true;
     };
     payload: TValue;
 }
 export declare class OblongState<TValue extends StateValue = undefined> {
-    private configuration;
-    private cachedSelector;
+    protected configuration: StateConfiguration<TValue>;
+    protected cachedSelector: (state: any) => TValue;
     constructor(newConfiguration?: Partial<StateConfiguration<TValue>>);
     query(state: any): TValue;
     command(dispatch: any, getState: any): (newValue: TValue) => SetAction<TValue>;
-    withDefault<TNewValue extends StateValue>(defaultValue: TNewValue): OblongState<TNewValue>;
-    as(locator: string): OblongState<TValue>;
 }
-export declare const createState: () => OblongState<undefined>;
+export declare class OblongStateBuilder<TValue extends StateValue = undefined> extends OblongState<TValue> {
+    constructor(newConfiguration?: Partial<StateConfiguration<TValue>>);
+    withDefault<TNewValue extends StateValue>(defaultValue: TNewValue): OblongStateBuilder<TNewValue>;
+    as(locator: string): OblongStateBuilder<TValue>;
+}
+export declare const createState: () => OblongStateBuilder<undefined>;
 export {};

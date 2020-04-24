@@ -6,6 +6,14 @@ const { query: nameQuery, command: nameCommand } = O.createState()
   .withDefault('John Doe')
   .as('user.profile.name')
 
+const makeUpperCaseCommand = O.createCommand()
+  .with({ nameQuery, nameCommand })
+  .as((o) => {
+    console.log(`Before: ${o.nameQuery}`)
+    o.nameCommand(o.nameQuery?.toUpperCase() ?? 'BOOM')
+    console.log(`After: ${o.nameQuery}`)
+  })
+
 const Greeter = () => {
   const { dispatch, getState } = useStore()
   const name = useSelector(nameQuery)
@@ -14,11 +22,22 @@ const Greeter = () => {
     getState,
   ])
   const onChangeName = useCallback((e) => setName(e.target.value), [setName])
+  const makeUpperCase = useMemo(
+    () => makeUpperCaseCommand(dispatch, getState),
+    [dispatch, getState]
+  )
 
   return (
     <>
       <div>Name: {name}</div>
-      <input type="text" value={name} onChange={onChangeName} />
+      <div>
+        <input type="text" value={name} onChange={onChangeName} />
+      </div>
+      <div>
+        <button type="button" onClick={makeUpperCase}>
+          Make Upper Case
+        </button>
+      </div>
     </>
   )
 }

@@ -1,21 +1,22 @@
-declare type ZeroVoid = () => void;
-declare type OneVoid = <TArg1>(TArg1: any) => void;
-declare type TwoVoid = <TArg1, TArg2>(TArg1: any, TArg2: any) => void;
-declare type ThreeVoid = <TArg1, TArg2, TArg3>(TArg1: any, TArg2: any, TArg3: any) => void;
-declare type FourVoid = <TArg1, TArg2, TArg3, TArg4>(TArg1: any, TArg2: any, TArg3: any, TArg4: any) => void;
-declare type FiveVoid = <TArg1, TArg2, TArg3, TArg4, TArg5>(TArg1: any, TArg2: any, TArg3: any, TArg4: any, TArg5: any) => void;
-declare type SixVoid = <TArg1, TArg2, TArg3, TArg4, TArg5, TArg6>(TArg1: any, TArg2: any, TArg3: any, TArg4: any, TArg5: any, TArg6: any) => void;
-declare type SevenVoid = <TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7>(TArg1: any, TArg2: any, TArg3: any, TArg4: any, TArg5: any, TArg6: any, TArg7: any) => void;
-declare type EightVoid = <TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8>(TArg1: any, TArg2: any, TArg3: any, TArg4: any, TArg5: any, TArg6: any, TArg7: any, TArg8: any) => void;
-declare type ZeroReturn = <TReturn>() => TReturn;
-declare type OneReturn = <TArg1, TReturn>(TArg1: any) => TReturn;
-declare type TwoReturn = <TArg1, TArg2, TReturn>(TArg1: any, TArg2: any) => TReturn;
-declare type ThreeReturn = <TArg1, TArg2, TArg3, TReturn>(TArg1: any, TArg2: any, TArg3: any) => TReturn;
-declare type FourReturn = <TArg1, TArg2, TArg3, TArg4, TReturn>(TArg1: any, TArg2: any, TArg3: any, TArg4: any) => TReturn;
-declare type FiveReturn = <TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(TArg1: any, TArg2: any, TArg3: any, TArg4: any, TArg5: any) => TReturn;
-declare type SixReturn = <TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TReturn>(TArg1: any, TArg2: any, TArg3: any, TArg4: any, TArg5: any, TArg6: any) => TReturn;
-declare type SevenReturn = <TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TReturn>(TArg1: any, TArg2: any, TArg3: any, TArg4: any, TArg5: any, TArg6: any, TArg7: any) => TReturn;
-declare type EightReturn = <TArg1, TArg2, TArg3, TArg4, TArg5, TArg6, TArg7, TArg8, TReturn>(TArg1: any, TArg2: any, TArg3: any, TArg4: any, TArg5: any, TArg6: any, TArg7: any, TArg8: any) => TReturn;
-declare type AnyFunc = OneVoid | TwoVoid | ThreeVoid | FourVoid | FiveVoid | SixVoid | SevenVoid | EightVoid | OneReturn | TwoReturn | ThreeReturn | FourReturn | FiveReturn | SixReturn | SevenReturn | EightReturn;
-declare type Query = <TReturn>(state: any) => TReturn;
-declare const myFunc: (q: Query) => () => unknown;
+import { Dispatch } from 'redux';
+interface CommandConfiguration<TDependencies, TOutput> {
+    displayName: string;
+    dependencies: TDependencies;
+    as: (o: TDependencies & {
+        args: unknown[];
+    }) => TOutput;
+}
+export interface OblongCommand<TOutput> {
+    (dispatch: Dispatch, getState: () => any): (...args: unknown[]) => TOutput;
+    oblongType: 'command';
+}
+export interface OblongCommandBuilder<TDependencies, TOutput> extends OblongCommand<TOutput> {
+    configuration: CommandConfiguration<TDependencies, TOutput>;
+    withDisplayName: (displayName: string) => OblongCommandBuilder<TDependencies, TOutput>;
+    with: <TNewDependencies>(dependencies: TNewDependencies) => OblongCommandBuilder<TNewDependencies, TOutput>;
+    as: <TNewOutput>(as: (o: TDependencies & {
+        args: unknown[];
+    }) => TNewOutput) => OblongCommandBuilder<TDependencies, TNewOutput>;
+}
+export declare const createCommand: () => OblongCommandBuilder<{}, void>;
+export {};

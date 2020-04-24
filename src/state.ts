@@ -1,6 +1,9 @@
 import { createSelector } from 'reselect'
 import { Action } from 'redux'
 
+const defaultOblong = {}
+const oblongSelector = (state) => (state ? state.oblong : defaultOblong)
+
 type StateValue = null | undefined | number | boolean | string | object | any[]
 
 interface StateConfiguration<TValue extends StateValue> {
@@ -9,22 +12,24 @@ interface StateConfiguration<TValue extends StateValue> {
 }
 
 interface SetAction<TValue> extends Action {
-  meta: { isOblongSetter: true }
+  meta: { isOblong: true }
   payload: TValue
 }
 
 let locatorIdIncrementor = 0
 
 const defaultUnorganized = {}
-const unorganized = (state) =>
-  (state && state.unorganized) || defaultUnorganized
+const unorganized = createSelector(
+  [oblongSelector],
+  (oblongSelector) => oblongSelector.unorganized || defaultUnorganized
+)
 
 const defaultConfiguration: StateConfiguration<undefined> = {
   defaultValue: undefined,
   locator: '',
 }
 
-const nestingLocatorPattern = /^([a-z_]+\.)*([a-z\_]+)$/i
+const nestingLocatorPattern = /^([a-z_]+\.)*([a-z_]+)$/i
 
 const namespaceSelectorCache: { [key: string]: (state: any) => any } = {}
 const emptyNamespace = {}
@@ -35,14 +40,16 @@ const getNamespaceSelector = (namespace: string) => {
     // TODO revisit this and see if there's a faster way to do it
     // Maybe the new Function from string trick?
     // This selector needs to be very fast
-    namespaceSelectorCache[namespace] = (state: any) => {
-      if (!state) return emptyNamespace
-
-      let currentStep = state
-      for (const namespacePiece of namespacePieces) {
-        currentStep = currentStep[namespacePiece] || emptyNamespace
+    namespaceSelectorCache[namespace] = createSelector(
+      [oblongSelector],
+      (oblongSelector) => {
+        let currentStep = oblongSelector
+        for (const namespacePiece of namespacePieces) {
+          currentStep = currentStep[namespacePiece] || emptyNamespace
+        }
+        return currentStep
       }
-    }
+    )
   }
 
   return namespaceSelectorCache[namespace]
@@ -59,26 +66,28 @@ const makeSelector = <TValue extends StateValue>({
       (unorganized) => unorganized[locator] || defaultValue
     )
 
-  if (!locator.includes('.'))
-    return (state: any): TValue =>
-      (state && state[locator]) || defaultUnorganized
+  const isNamespaced = locator.includes('.')
+
+  if (!isNamespaced)
+    return createSelector(
+      [oblongSelector],
+      (oblongSelector) => oblongSelector[locator] || defaultUnorganized
+    )
 
   const namespacePropSplitLocation = locator.lastIndexOf('.')
 
   const namespace = locator.substr(0, namespacePropSplitLocation)
   const namespaceSelector = getNamespaceSelector(namespace)
-  const prop = locator.substr(namespacePropSplitLocation)
+  const prop = locator.substr(namespacePropSplitLocation + 1)
 
-  return createSelector(
-    [namespaceSelector],
-    (namespaceSelector) => namespaceSelector[prop] || defaultValue
-  )
+  return createSelector([namespaceSelector], (namespaceSelector) => {
+    return namespaceSelector[prop] || defaultValue
+  })
 }
 
-// TODO figure out how to support array destructuring for [query, command]
 export class OblongState<TValue extends StateValue = undefined> {
-  private configuration: StateConfiguration<TValue>
-  private cachedSelector: (state: any) => TValue
+  protected configuration: StateConfiguration<TValue>
+  protected cachedSelector: (state: any) => TValue
 
   constructor(newConfiguration: Partial<StateConfiguration<TValue>> = {}) {
     this.configuration = {
@@ -90,7 +99,9 @@ export class OblongState<TValue extends StateValue = undefined> {
       this.configuration.locator = `UNNAMED ${locatorIdIncrementor++}`
 
     this.query = this.query.bind(this)
+    ;(this.query as any).oblongType = 'query'
     this.command = this.command.bind(this)
+    ;(this.command as any).oblongType = 'command'
   }
 
   public query(state: any): TValue {
@@ -109,24 +120,33 @@ export class OblongState<TValue extends StateValue = undefined> {
     return (newValue: TValue) =>
       dispatch({
         type: `SET ${this.configuration.locator}`,
-        meta: { isOblongSetter: true },
+        meta: { isOblong: true },
         payload: newValue,
       })
   }
+}
+
+// TODO figure out how to support array destructuring for [query, command]
+export class OblongStateBuilder<
+  TValue extends StateValue = undefined
+> extends OblongState<TValue> {
+  constructor(newConfiguration: Partial<StateConfiguration<TValue>> = {}) {
+    super(newConfiguration)
+  }
 
   public withDefault<TNewValue extends StateValue>(defaultValue: TNewValue) {
-    return new OblongState<TNewValue>({
+    return new OblongStateBuilder<TNewValue>({
       ...this.configuration,
       defaultValue,
     })
   }
 
   public as(locator: string) {
-    return new OblongState<TValue>({
+    return new OblongStateBuilder<TValue>({
       ...this.configuration,
       locator,
     })
   }
 }
 
-export const createState = () => new OblongState()
+export const createState = () => new OblongStateBuilder()
