@@ -1,4 +1,13 @@
 import { createSelector } from 'reselect';
+/**
+ * Idea just came to me. Because of how materialize works (passing in both dispatch and getState), we can support
+ * two different syntaxes with state: one using destructuring like:
+ *   const [name, setName] = useState('John Doe')
+ * and another similar to mobX and react-easy-state's proxy usage (but it doesn't need proxy support, only properties support)
+ *   view...as((o) => <input type="text" value={o.name} onChange={e => o.name = e.target.value}) />
+ * Because it can be implemented as a get/set property on the o bound dependencies!
+ * And unlike useRef, where setting the .current value doesn't trigger a re-render, this does! Because it's just a dispatch! neat.
+ */
 const defaultOblong = {};
 const oblongSelector = (state) => (state ? state.oblong : defaultOblong);
 let locatorIdIncrementor = 0;
@@ -46,26 +55,33 @@ export class OblongState {
     constructor(newConfiguration = {}) {
         this.configuration = Object.assign(Object.assign({}, defaultConfiguration), newConfiguration);
         if (!this.configuration.locator)
-            this.configuration.locator = `UNNAMED ${locatorIdIncrementor++}`;
-        this.query = this.query.bind(this);
-        this.query.oblongType = 'query';
-        this.command = this.command.bind(this);
-        this.command.oblongType = 'command';
+            this.configuration.locator = `Unnamed State ${locatorIdIncrementor++}`;
+        this.cachedSelector = makeSelector(this.configuration);
     }
-    query(state) {
+    get query() {
         if (!this.cachedSelector)
             this.cachedSelector = makeSelector(this.configuration);
-        return this.cachedSelector(state);
+        return {
+            oblongType: 'query',
+            materialize: (_dispatch, getState) => {
+                console.log({ materializing: this.cachedSelector(getState()) });
+                return this.cachedSelector(getState());
+            },
+            inner: ({}) => undefined,
+        };
     }
-    command(dispatch, 
-    // TODO use query + getState support setSomething(oldValue => oldValue + 1)
-    // TODO use Object.is to bail out of state updates
-    getState) {
-        return (newValue) => dispatch({
-            type: `SET ${this.configuration.locator}`,
-            meta: { isOblong: true },
-            payload: newValue,
-        });
+    get command() {
+        if (!this.cachedSelector)
+            this.cachedSelector = makeSelector(this.configuration);
+        return {
+            oblongType: 'command',
+            materialize: (dispatch, _getState) => (newValue) => dispatch({
+                type: `SET ${this.configuration.locator}`,
+                meta: { isOblong: true },
+                payload: newValue,
+            }),
+            inner: ({}) => undefined,
+        };
     }
 }
 // TODO figure out how to support array destructuring for [query, command]

@@ -1,3 +1,4 @@
 import { createState } from './state';
 import { createCommand } from './command';
-export const O = { createState, createCommand };
+import { createQuery } from './query';
+export const O = { createState, createCommand, createQuery };

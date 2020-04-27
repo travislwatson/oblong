@@ -2,9 +2,11 @@ import React, { useCallback, useMemo } from 'react'
 import { OblongApp, O } from 'oblong'
 import { useStore, useSelector } from 'react-redux'
 
-const { query: nameQuery, command: nameCommand } = O.createState()
-  .withDefault('John Doe')
-  .as('user.profile.name')
+const {
+  query: nameQuery,
+  command: nameCommand,
+  cachedSelector,
+} = O.createState().withDefault('John Doe').as('user.profile.name')
 
 const makeUpperCaseCommand = O.createCommand()
   .with({ nameQuery, nameCommand })
@@ -14,22 +16,30 @@ const makeUpperCaseCommand = O.createCommand()
     console.log(`After: ${o.nameQuery}`)
   })
 
+const firstNameQuery = O.createQuery()
+  .with({ name: nameQuery })
+  .as((o) => o.name.split(' ')[0])
+
 const Greeter = () => {
   const { dispatch, getState } = useStore()
-  const name = useSelector(nameQuery)
-  const setName = useMemo(() => nameCommand(dispatch, getState), [
+  const name = nameQuery.materialize(dispatch, getState)
+  const firstName = firstNameQuery.materialize(dispatch, getState)
+  const setName = useMemo(() => nameCommand.materialize(dispatch, getState), [
     dispatch,
     getState,
   ])
+  // no way to trigger a re-render yet... uh oh.
+  const ignored = useSelector(cachedSelector)
   const onChangeName = useCallback((e) => setName(e.target.value), [setName])
   const makeUpperCase = useMemo(
-    () => makeUpperCaseCommand(dispatch, getState),
+    () => makeUpperCaseCommand.materialize(dispatch, getState),
     [dispatch, getState]
   )
 
   return (
     <>
       <div>Name: {name}</div>
+      <div>First Name: {firstName}</div>
       <div>
         <input type="text" value={name} onChange={onChangeName} />
       </div>
