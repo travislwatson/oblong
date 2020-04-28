@@ -54,16 +54,18 @@ Okay, so we're creating a piece of state which has a default of `'John Doe'`. So
 
 While highly recommended, both the default and the locator are optional. `O.createState().as()` will create a unique piece of state with a default value of `undefined`.
 
+State can be read and used inside of a command, query or view. It can be changed inside of a command or view.
+
 ## Command
 
 Commands encapsulate all your application side effects. This is where all your imperative code should live.
 
 ```js
 import { O } from 'oblong'
-import { newName, setProfile } from './profile'
+import { newName, profile } from './profile'
 
 export const saveProfile = O.createCommand()
-  .with({ newName, setProfile })
+  .with({ newName, profile })
   .as(async (o) => {
     const response = await fetch('/profile', {
       method: 'PUT',
@@ -72,15 +74,17 @@ export const saveProfile = O.createCommand()
 
     const updatedProfile = await response.json()
 
-    o.setProfile(updatedProfile)
+    o.profile = updatedProfile
   })
 ```
 
-Again, while highly recommended, `with` and `as` are optional. Nothing more than `O.createCommand()` is required to create a no-op command.
+While optional, a command without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.createCommand().as()` is required to create a bare minimum no-op command.
 
 ## Query
 
-Oblong is designed for normalized state storage, which mean queries play a key role in making your application fast and organized. They should be pure declarative functions: use only the inputs and return only the outputs.
+Oblong is designed for normalized state storage, which mean queries to denormalize that data into something more useful are critical in making your application fast and organized. They should be pure declarative functions: use only the inputs and return only the outputs.
+
+A query can depend on state or other queries. Queries cannot depend on commands, and state cannot be changed inside queries.
 
 ```js
 import { O } from 'oblong'
@@ -97,22 +101,33 @@ export const fullName = O.createQuery()
 
 Queries tend to be more manageable when they're smaller. As a general rule of thumb, if the selector gets large enough for you to want an explicit `return` lambda just due to its complexity, consider breaking it down.
 
+While optional, a command without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.createCommand().as()` is required to create a bare minimum no-op query that always returns `undefined`.
+
 ## View
 
-Last, but far from least, views wrap all your hard work creating state, commands, and queries into a neat package for your user:
+Last, but far from least, views wrap all your hard work creating state, commands, and queries into a neat package for your user.
+
+Views can depend on any combination of commands, queries, and state. State can be set inside views, but you might find it more manageable to prefer commands for your state assignments.
 
 ```js
 import { O } from 'oblong'
-import { name, setName, saveProfile } from './profile'
+import { name, save } from './profile'
 
 export const EditProfile = O.createView()
-  .with({ name, setName, saveProfile })
+  .with({ name, save })
   .as((o) => (
     <>
       <label>
-        Name: <input type="text" value={o.name} onChange={o.setName} />
+        Name:
+        <input
+          type="text"
+          value={o.name}
+          onChange={(e) => {
+            o.name = e.target.value
+          }}
+        />
       </label>
-      <button type="button" onClick={saveProfile}>
+      <button type="button" onClick={o.save}>
         Save
       </button>
     </>
