@@ -1,33 +1,29 @@
 import { OblongCommand, Unmaterialized } from './common'
 
-interface CommandConfiguration<TDependencies> {
-  dependencies: Unmaterialized<TDependencies>
+interface Config<TDep> {
+  dependencies: Unmaterialized<TDep>
 }
 
-export interface CommandBuilder<TDependencies> {
-  with: <TNewDependencies>(
-    dependencies: Unmaterialized<TNewDependencies>
-  ) => CommandBuilder<TNewDependencies>
+export interface CommandBuilder<TDep> {
+  with: <TNewDep>(
+    dependencies: Unmaterialized<TNewDep>
+  ) => CommandBuilder<TNewDep>
   as: (
-    inner: (dependencies: TDependencies & { args: any[] }) => any
-  ) => OblongCommand<TDependencies>
+    inner: (dependencies: TDep & { args: any[] }) => any
+  ) => OblongCommand<TDep>
 }
 
-const makeCommand = <TDependencies>(
-  initialDependencies: Unmaterialized<TDependencies>
-) => {
-  const configuration: CommandConfiguration<TDependencies> = {
+const makeCommand = <TDep>(initialDependencies: Unmaterialized<TDep>) => {
+  const configuration: Config<TDep> = {
     dependencies: initialDependencies,
   }
 
   // TODO type this : CommandBuilder<TDependencies>
   const builderInstance = {
-    with: <TNewDependencies>(
-      dependencies: Unmaterialized<TNewDependencies>
-    ) => {
+    with: <TNewDep>(dependencies: Unmaterialized<TNewDep>) => {
       // TODO, this type dance feels icky, but the types are good. Maybe is ok? Maybe need better way?
       configuration.dependencies = dependencies as any
-      return (builderInstance as unknown) as CommandBuilder<TNewDependencies>
+      return (builderInstance as unknown) as CommandBuilder<TNewDep>
     },
     // I don't know how to define this...
     // Is this related? https://github.com/microsoft/TypeScript/issues/5453
@@ -35,7 +31,7 @@ const makeCommand = <TDependencies>(
       return {
         oblongType: 'command',
         materialize: (dispatch: (action: any) => void, getState: () => any) => {
-          const boundDependencies = {} as TDependencies
+          const boundDependencies = {} as TDep
 
           for (const key in configuration.dependencies) {
             const dependency = configuration.dependencies[key]
@@ -79,7 +75,7 @@ const makeCommand = <TDependencies>(
   }
 
   // TODO This shimmy is due to not being able to get the `as` signature right above
-  return (builderInstance as unknown) as CommandBuilder<TDependencies>
+  return (builderInstance as unknown) as CommandBuilder<TDep>
 }
 
 export const createCommand = () => makeCommand({})

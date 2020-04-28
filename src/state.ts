@@ -1,5 +1,4 @@
 import { createSelector } from 'reselect'
-import { Action } from 'redux'
 import { OblongCommand, OblongQuery } from './common'
 
 const empty = Object.freeze({})
@@ -8,14 +7,9 @@ const oblongSelector = (state) => (state ? state.oblong : empty)
 
 type StateValue = null | undefined | number | boolean | string | object | any[]
 
-interface StateConfiguration<TValue extends StateValue> {
-  defaultValue: TValue
+interface Config<TVal extends StateValue> {
+  defaultValue: TVal
   locator: string
-}
-
-interface SetAction<TValue> extends Action {
-  meta: { isOblong: true }
-  payload: TValue
 }
 
 let locatorIdIncrementor = 0
@@ -25,7 +19,7 @@ const unorganized = createSelector(
   (oblongSelector) => oblongSelector.unorganized || empty
 )
 
-const defaultConfiguration: StateConfiguration<undefined> = {
+const defaultConfiguration: Config<undefined> = {
   defaultValue: undefined,
   locator: '',
 }
@@ -58,7 +52,7 @@ const getNamespaceSelector = (namespace: string) => {
 const makeSelector = <TValue extends StateValue>({
   defaultValue,
   locator,
-}: StateConfiguration<TValue>) => {
+}: Config<TValue>) => {
   const isNestingLocator = nestingLocatorPattern.test(locator)
 
   if (!isNestingLocator)
@@ -87,11 +81,11 @@ const makeSelector = <TValue extends StateValue>({
 }
 
 export class OblongState<TValue extends StateValue = undefined> {
-  protected configuration: StateConfiguration<TValue>
+  protected configuration: Config<TValue>
   public cachedSelector: (state: any) => TValue
   public oblongType = 'state'
 
-  constructor(newConfiguration: Partial<StateConfiguration<TValue>> = {}) {
+  constructor(newConfiguration: Partial<Config<TValue>> = {}) {
     this.configuration = {
       ...defaultConfiguration,
       ...newConfiguration,
@@ -135,13 +129,13 @@ export class OblongState<TValue extends StateValue = undefined> {
 
 // TODO figure out how to support array destructuring for [query, command]
 export class OblongStateBuilder<
-  TValue extends StateValue = undefined
-> extends OblongState<TValue> {
-  constructor(newConfiguration: Partial<StateConfiguration<TValue>> = {}) {
+  TVal extends StateValue = undefined
+> extends OblongState<TVal> {
+  constructor(newConfiguration: Partial<Config<TVal>> = {}) {
     super(newConfiguration)
   }
 
-  public withDefault<TNewValue extends StateValue>(defaultValue: TNewValue) {
+  public withDefault<TNewVal extends StateValue>(defaultValue: TNewVal) {
     Object.freeze(defaultValue)
     return new OblongStateBuilder<typeof defaultValue>({
       ...this.configuration,
@@ -150,7 +144,7 @@ export class OblongStateBuilder<
   }
 
   public as(locator: string) {
-    return new OblongStateBuilder<TValue>({
+    return new OblongStateBuilder<TVal>({
       ...this.configuration,
       locator,
     })

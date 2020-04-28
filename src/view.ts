@@ -1,45 +1,35 @@
+import * as React from 'react'
 import { useSelector, useStore } from 'react-redux'
 import { Unmaterialized } from './common'
-import * as React from 'react'
 
-export interface OblongView<TDependencies, TProps> extends React.FC<TProps> {
-  inner: React.FC<TDependencies & TProps>
+export interface OblongView<TDep, TProps> extends React.FC<TProps> {
+  inner: React.FC<TDep & TProps>
 }
 
-// Maybe something like this for defining dependency types: https://stackoverflow.com/a/44441178
-// Or maybe in here, check out the Record<T, K> stuff too: https://stackoverflow.com/a/39281228
-interface ViewConfiguration<TDependencies> {
-  dependencies: Unmaterialized<TDependencies>
+interface Config<TDep> {
+  dependencies: Unmaterialized<TDep>
 }
 
-export interface ViewBuilder<TDependencies> {
-  with: <TNewDependencies>(
-    dependencies: Unmaterialized<TNewDependencies>
-  ) => ViewBuilder<TNewDependencies>
-  as: <TProps = {}>(
-    inner: React.FC<TDependencies & TProps>
-  ) => OblongView<TDependencies, TProps>
+export interface ViewBuilder<TDep> {
+  with: <TNewDep>(dependencies: Unmaterialized<TNewDep>) => ViewBuilder<TNewDep>
+  as: <TProps = {}>(inner: React.FC<TDep & TProps>) => OblongView<TDep, TProps>
 }
 
-const makeView = <TDependencies>(
-  initialDependencies: Unmaterialized<TDependencies>
-) => {
-  const configuration: ViewConfiguration<TDependencies> = {
+const makeView = <TDep>(initialDependencies: Unmaterialized<TDep>) => {
+  const configuration: Config<TDep> = {
     dependencies: initialDependencies,
   }
 
   // TODO type this : ViewBuilder<TDependencies>
-  const builderInstance: ViewBuilder<TDependencies> = {
-    with: <TNewDependencies>(
-      dependencies: Unmaterialized<TNewDependencies>
-    ) => {
+  const builderInstance: ViewBuilder<TDep> = {
+    with: <TNewDep>(dependencies: Unmaterialized<TNewDep>) => {
       // TODO, this type dance feels icky, but the types are good. Maybe is ok? Maybe need better way?
       configuration.dependencies = dependencies as any
-      return (builderInstance as unknown) as ViewBuilder<TNewDependencies>
+      return (builderInstance as unknown) as ViewBuilder<TNewDep>
     },
     // I don't know how to define this...
     // Is this related? https://github.com/microsoft/TypeScript/issues/5453
-    as: <TProps = {}>(inner: React.FC<TDependencies & TProps>) => {
+    as: <TProps = {}>(inner: React.FC<TDep & TProps>) => {
       const dependencyKeys = Object.keys(configuration.dependencies)
 
       const output = ((props: TProps) => {
@@ -86,8 +76,8 @@ const makeView = <TDependencies>(
 
         Object.assign(boundDependencies, props)
 
-        return inner(boundDependencies as TDependencies & TProps)
-      }) as OblongView<TDependencies, TProps>
+        return inner(boundDependencies as TDep & TProps)
+      }) as OblongView<TDep, TProps>
 
       output.inner = inner
 

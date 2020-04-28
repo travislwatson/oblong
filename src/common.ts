@@ -1,3 +1,22 @@
+export interface Dependency<TSig> {
+  type: 'command' | 'query' | 'state'
+}
+
+export type Dependencies<T> = {
+  [K in keyof T]: Dependency<T[K]>
+}
+
+// export interface Command<TDep extends Dependencies, TOut> extends Dependency<(o: TDep) => > {
+//   type: 'command'
+//   resolve: (dispatch: any, getState: any) => (args: any[]) => any
+//   inner: TSig
+// }
+
+export interface Query<T> extends Dependency<T> {
+  type: 'query'
+  resolve: () => (state: any) => T
+}
+
 export interface OblongDependency<TMaterialized> {
   oblongType: 'command' | 'query' | 'state' | 'view'
   materialize: (

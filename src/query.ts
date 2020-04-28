@@ -1,35 +1,29 @@
 import { OblongQuery, Unmaterialized } from './common'
 import { createSelector } from 'reselect'
 
-interface QueryConfiguration<TDependencies> {
-  dependencies: Unmaterialized<TDependencies>
+interface Config<TDep> {
+  dependencies: Unmaterialized<TDep>
 }
 
-export interface QueryBuilder<TDependencies> {
-  with: <TNewDependencies>(
-    dependencies: Unmaterialized<TNewDependencies>
-  ) => QueryBuilder<TNewDependencies>
-  as: <TOutput>(
-    inner: (dependencies: TDependencies) => TOutput
-  ) => OblongQuery<TDependencies, TOutput>
+export interface QueryBuilder<TDep> {
+  with: <TNewDep>(
+    dependencies: Unmaterialized<TNewDep>
+  ) => QueryBuilder<TNewDep>
+  as: <TOut>(inner: (dependencies: TDep) => TOut) => OblongQuery<TDep, TOut>
 }
 
-const makeQuery = <TDependencies>(
-  initialDependencies: Unmaterialized<TDependencies>
-) => {
-  const configuration: QueryConfiguration<TDependencies> = {
+const makeQuery = <TDep>(initialDependencies: Unmaterialized<TDep>) => {
+  const configuration: Config<TDep> = {
     dependencies: initialDependencies,
   }
 
-  const builderInstance: QueryBuilder<TDependencies> = {
-    with: <TNewDependencies>(
-      dependencies: Unmaterialized<TNewDependencies>
-    ) => {
+  const builderInstance: QueryBuilder<TDep> = {
+    with: <TNewDep>(dependencies: Unmaterialized<TNewDep>) => {
       // TODO, this type dance feels icky, but the types are good. Maybe is ok? Maybe need better way?
       configuration.dependencies = dependencies as any
-      return (builderInstance as unknown) as QueryBuilder<TNewDependencies>
+      return (builderInstance as unknown) as QueryBuilder<TNewDep>
     },
-    as: <TOutput>(inner: (dependencies: TDependencies) => TOutput) => {
+    as: <TOut>(inner: (dependencies: TDep) => TOut) => {
       const dependencyKeys = Object.keys(configuration.dependencies)
       const dependencyValues = dependencyKeys.map((i) => {
         const dependency = configuration.dependencies[i]
