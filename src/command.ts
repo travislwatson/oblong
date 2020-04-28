@@ -2,27 +2,22 @@ import { OblongCommand, Unmaterialized } from './common'
 
 interface CommandConfiguration<TDependencies> {
   dependencies: Unmaterialized<TDependencies>
-  displayName: string
 }
 
 export interface CommandBuilder<TDependencies> {
   with: <TNewDependencies>(
     dependencies: Unmaterialized<TNewDependencies>
   ) => CommandBuilder<TNewDependencies>
-  displayName: (displayName: string) => CommandBuilder<TDependencies>
   as: (
     inner: (dependencies: TDependencies & { args: any[] }) => any
   ) => OblongCommand<TDependencies>
 }
-
-let displayNameIncrementor = 0
 
 const makeCommand = <TDependencies>(
   initialDependencies: Unmaterialized<TDependencies>
 ) => {
   const configuration: CommandConfiguration<TDependencies> = {
     dependencies: initialDependencies,
-    displayName: `Unknown Command ${displayNameIncrementor}`,
   }
 
   // TODO type this : CommandBuilder<TDependencies>
@@ -33,10 +28,6 @@ const makeCommand = <TDependencies>(
       // TODO, this type dance feels icky, but the types are good. Maybe is ok? Maybe need better way?
       configuration.dependencies = dependencies as any
       return (builderInstance as unknown) as CommandBuilder<TNewDependencies>
-    },
-    displayName: (displayName: string) => {
-      configuration.displayName = displayName
-      return builderInstance
     },
     // I don't know how to define this...
     // Is this related? https://github.com/microsoft/TypeScript/issues/5453

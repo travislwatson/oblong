@@ -35,12 +35,12 @@ State is anything you wish to store. It can be simple values like strings, numbe
 ```js
 import { O } from 'oblong'
 
-export const [name, setName] = O.createState()
+export const name = O.createState()
   .withDefault('John Doe')
   .as('user.profile.name')
 ```
 
-Okay, so we're creating a piece of state which has a default of `'John Doe'`. So far so good, but what's the `as` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `setName('Jane Doe')`, then our state tree would look like:
+Okay, so we're creating a piece of state which has a default of `'John Doe'`. So far so good, but what's the `as` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `name = 'Jane Doe'`, then our state tree would look like:
 
 ```json
 {
@@ -52,7 +52,7 @@ Okay, so we're creating a piece of state which has a default of `'John Doe'`. So
 }
 ```
 
-While highly recommended, both the default and the locator are optional. `O.createState()` will create a unique piece of state with a default value of `undefined`.
+While highly recommended, both the default and the locator are optional. `O.createState().as()` will create a unique piece of state with a default value of `undefined`.
 
 ## Command
 

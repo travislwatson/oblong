@@ -1,9 +1,7 @@
 import React from 'react'
 import { OblongApp, O } from 'oblong'
 
-const profile = O.createState()
-  .withDefault({ name: 'John Doe' })
-  .as('user.profile')
+const profile = O.createState().withDefault().as()
 
 const changeCase = O.createCommand()
   .with({ profile })
@@ -12,13 +10,13 @@ const changeCase = O.createCommand()
 
     o.profile = {
       ...o.profile,
-      name: o.profile.name[up ? 'toUpperCase' : 'toLowerCase']() ?? 'BOOM',
+      name: o.profile?.name[up ? 'toUpperCase' : 'toLowerCase']() ?? 'BOOM',
     }
   })
 
 const firstName = O.createQuery()
   .with({ profile })
-  .as((o) => o.profile.name.split(' ')[0])
+  .as((o) => o.profile?.name.split(' ')[0])
 
 const Greeter = O.createView()
   .with({
@@ -28,12 +26,12 @@ const Greeter = O.createView()
   })
   .as((o) => (
     <>
-      <div>Name: {o.profile.name}</div>
+      <div>Name: {o.profile?.name}</div>
       <div>First Name: {o.firstName}</div>
       <div>
         <input
           type="text"
-          value={o.profile.name}
+          value={o.profile?.name}
           onChange={(e) => {
             o.profile = {
               ...o.profile,

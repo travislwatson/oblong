@@ -2,8 +2,9 @@ import { createSelector } from 'reselect'
 import { Action } from 'redux'
 import { OblongCommand, OblongQuery } from './common'
 
-const defaultOblong = {}
-const oblongSelector = (state) => (state ? state.oblong : defaultOblong)
+const empty = Object.freeze({})
+
+const oblongSelector = (state) => (state ? state.oblong : empty)
 
 type StateValue = null | undefined | number | boolean | string | object | any[]
 
@@ -19,10 +20,9 @@ interface SetAction<TValue> extends Action {
 
 let locatorIdIncrementor = 0
 
-const defaultUnorganized = {}
 const unorganized = createSelector(
   [oblongSelector],
-  (oblongSelector) => oblongSelector.unorganized || defaultUnorganized
+  (oblongSelector) => oblongSelector.unorganized || empty
 )
 
 const defaultConfiguration: StateConfiguration<undefined> = {
@@ -33,7 +33,7 @@ const defaultConfiguration: StateConfiguration<undefined> = {
 const nestingLocatorPattern = /^([a-z_]+\.)*([a-z_]+)$/i
 
 const namespaceSelectorCache: { [key: string]: (state: any) => any } = {}
-const emptyNamespace = {}
+
 const getNamespaceSelector = (namespace: string) => {
   if (!namespaceSelectorCache.hasOwnProperty(namespace)) {
     const namespacePieces = namespace.split('.')
@@ -46,7 +46,7 @@ const getNamespaceSelector = (namespace: string) => {
       (oblongSelector) => {
         let currentStep = oblongSelector
         for (const namespacePiece of namespacePieces) {
-          currentStep = currentStep[namespacePiece] || emptyNamespace
+          currentStep = currentStep[namespacePiece] || empty
         }
         return currentStep
       }
@@ -70,9 +70,7 @@ const makeSelector = <TValue extends StateValue>({
 
   if (!isNamespaced)
     return createSelector([oblongSelector], (oblongSelector) =>
-      oblongSelector.hasOwnProperty(locator)
-        ? oblongSelector[locator]
-        : defaultUnorganized
+      oblongSelector.hasOwnProperty(locator) ? oblongSelector[locator] : empty
     )
 
   const namespacePropSplitLocation = locator.lastIndexOf('.')
@@ -100,7 +98,7 @@ export class OblongState<TValue extends StateValue = undefined> {
     }
 
     if (!this.configuration.locator)
-      this.configuration.locator = `Unnamed State ${locatorIdIncrementor++}`
+      this.configuration.locator = `?-${locatorIdIncrementor++}`
   }
 
   public get query(): OblongQuery<{}, TValue> {

@@ -3,27 +3,22 @@ import { createSelector } from 'reselect'
 
 interface QueryConfiguration<TDependencies> {
   dependencies: Unmaterialized<TDependencies>
-  displayName: string
 }
 
 export interface QueryBuilder<TDependencies> {
   with: <TNewDependencies>(
     dependencies: Unmaterialized<TNewDependencies>
   ) => QueryBuilder<TNewDependencies>
-  displayName: (displayName: string) => QueryBuilder<TDependencies>
   as: <TOutput>(
     inner: (dependencies: TDependencies) => TOutput
   ) => OblongQuery<TDependencies, TOutput>
 }
-
-let displayNameIncrementor = 0
 
 const makeQuery = <TDependencies>(
   initialDependencies: Unmaterialized<TDependencies>
 ) => {
   const configuration: QueryConfiguration<TDependencies> = {
     dependencies: initialDependencies,
-    displayName: `Unknown Query ${displayNameIncrementor}`,
   }
 
   const builderInstance: QueryBuilder<TDependencies> = {
@@ -33,10 +28,6 @@ const makeQuery = <TDependencies>(
       // TODO, this type dance feels icky, but the types are good. Maybe is ok? Maybe need better way?
       configuration.dependencies = dependencies as any
       return (builderInstance as unknown) as QueryBuilder<TNewDependencies>
-    },
-    displayName: (displayName: string) => {
-      configuration.displayName = displayName
-      return builderInstance
     },
     as: <TOutput>(inner: (dependencies: TDependencies) => TOutput) => {
       const dependencyKeys = Object.keys(configuration.dependencies)

@@ -10,27 +10,22 @@ export interface OblongView<TDependencies, TProps> extends React.FC<TProps> {
 // Or maybe in here, check out the Record<T, K> stuff too: https://stackoverflow.com/a/39281228
 interface ViewConfiguration<TDependencies> {
   dependencies: Unmaterialized<TDependencies>
-  displayName: string
 }
 
 export interface ViewBuilder<TDependencies> {
   with: <TNewDependencies>(
     dependencies: Unmaterialized<TNewDependencies>
   ) => ViewBuilder<TNewDependencies>
-  displayName: (displayName: string) => ViewBuilder<TDependencies>
   as: <TProps = {}>(
     inner: React.FC<TDependencies & TProps>
   ) => OblongView<TDependencies, TProps>
 }
-
-let displayNameIncrementor = 0
 
 const makeView = <TDependencies>(
   initialDependencies: Unmaterialized<TDependencies>
 ) => {
   const configuration: ViewConfiguration<TDependencies> = {
     dependencies: initialDependencies,
-    displayName: `UnknownView${displayNameIncrementor}`,
   }
 
   // TODO type this : ViewBuilder<TDependencies>
@@ -41,10 +36,6 @@ const makeView = <TDependencies>(
       // TODO, this type dance feels icky, but the types are good. Maybe is ok? Maybe need better way?
       configuration.dependencies = dependencies as any
       return (builderInstance as unknown) as ViewBuilder<TNewDependencies>
-    },
-    displayName: (displayName: string) => {
-      configuration.displayName = displayName
-      return builderInstance
     },
     // I don't know how to define this...
     // Is this related? https://github.com/microsoft/TypeScript/issues/5453
