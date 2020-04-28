@@ -3,7 +3,6 @@ import { OblongCommand, Unmaterialized } from './common'
 interface CommandConfiguration<TDependencies> {
   dependencies: Unmaterialized<TDependencies>
   displayName: string
-  trace: boolean
 }
 
 export interface CommandBuilder<TDependencies> {
@@ -11,7 +10,6 @@ export interface CommandBuilder<TDependencies> {
     dependencies: Unmaterialized<TNewDependencies>
   ) => CommandBuilder<TNewDependencies>
   displayName: (displayName: string) => CommandBuilder<TDependencies>
-  trace: () => CommandBuilder<TDependencies>
   as: (
     inner: (dependencies: TDependencies & { args: any[] }) => any
   ) => OblongCommand<TDependencies>
@@ -25,7 +23,6 @@ const makeCommand = <TDependencies>(
   const configuration: CommandConfiguration<TDependencies> = {
     dependencies: initialDependencies,
     displayName: `Unknown Command ${displayNameIncrementor}`,
-    trace: false,
   }
 
   // TODO type this : CommandBuilder<TDependencies>
@@ -39,10 +36,6 @@ const makeCommand = <TDependencies>(
     },
     displayName: (displayName: string) => {
       configuration.displayName = displayName
-      return builderInstance
-    },
-    trace: () => {
-      configuration.trace = true
       return builderInstance
     },
     // I don't know how to define this...

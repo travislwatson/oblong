@@ -3,7 +3,6 @@ const makeCommand = (initialDependencies) => {
     const configuration = {
         dependencies: initialDependencies,
         displayName: `Unknown Command ${displayNameIncrementor}`,
-        trace: false,
     };
     // TODO type this : CommandBuilder<TDependencies>
     const builderInstance = {
@@ -14,10 +13,6 @@ const makeCommand = (initialDependencies) => {
         },
         displayName: (displayName) => {
             configuration.displayName = displayName;
-            return builderInstance;
-        },
-        trace: () => {
-            configuration.trace = true;
             return builderInstance;
         },
         // I don't know how to define this...

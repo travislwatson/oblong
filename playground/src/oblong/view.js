@@ -5,7 +5,6 @@ const makeView = (initialDependencies) => {
     const configuration = {
         dependencies: initialDependencies,
         displayName: `UnknownView${displayNameIncrementor}`,
-        trace: false,
     };
     // TODO type this : ViewBuilder<TDependencies>
     const builderInstance = {
@@ -16,10 +15,6 @@ const makeView = (initialDependencies) => {
         },
         displayName: (displayName) => {
             configuration.displayName = displayName;
-            return builderInstance;
-        },
-        trace: () => {
-            configuration.trace = true;
             return builderInstance;
         },
         // I don't know how to define this...

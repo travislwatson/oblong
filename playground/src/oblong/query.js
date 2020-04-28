@@ -4,7 +4,6 @@ const makeQuery = (initialDependencies) => {
     const configuration = {
         dependencies: initialDependencies,
         displayName: `Unknown Query ${displayNameIncrementor}`,
-        trace: false,
     };
     const builderInstance = {
         with: (dependencies) => {
@@ -14,10 +13,6 @@ const makeQuery = (initialDependencies) => {
         },
         displayName: (displayName) => {
             configuration.displayName = displayName;
-            return builderInstance;
-        },
-        trace: () => {
-            configuration.trace = true;
             return builderInstance;
         },
         as: (inner) => {

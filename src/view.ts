@@ -11,7 +11,6 @@ export interface OblongView<TDependencies, TProps> extends React.FC<TProps> {
 interface ViewConfiguration<TDependencies> {
   dependencies: Unmaterialized<TDependencies>
   displayName: string
-  trace: boolean
 }
 
 export interface ViewBuilder<TDependencies> {
@@ -19,7 +18,6 @@ export interface ViewBuilder<TDependencies> {
     dependencies: Unmaterialized<TNewDependencies>
   ) => ViewBuilder<TNewDependencies>
   displayName: (displayName: string) => ViewBuilder<TDependencies>
-  trace: () => ViewBuilder<TDependencies>
   as: <TProps = {}>(
     inner: React.FC<TDependencies & TProps>
   ) => OblongView<TDependencies, TProps>
@@ -33,7 +31,6 @@ const makeView = <TDependencies>(
   const configuration: ViewConfiguration<TDependencies> = {
     dependencies: initialDependencies,
     displayName: `UnknownView${displayNameIncrementor}`,
-    trace: false,
   }
 
   // TODO type this : ViewBuilder<TDependencies>
@@ -47,10 +44,6 @@ const makeView = <TDependencies>(
     },
     displayName: (displayName: string) => {
       configuration.displayName = displayName
-      return builderInstance
-    },
-    trace: () => {
-      configuration.trace = true
       return builderInstance
     },
     // I don't know how to define this...

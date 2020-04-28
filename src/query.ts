@@ -4,7 +4,6 @@ import { createSelector } from 'reselect'
 interface QueryConfiguration<TDependencies> {
   dependencies: Unmaterialized<TDependencies>
   displayName: string
-  trace: boolean
 }
 
 export interface QueryBuilder<TDependencies> {
@@ -12,7 +11,6 @@ export interface QueryBuilder<TDependencies> {
     dependencies: Unmaterialized<TNewDependencies>
   ) => QueryBuilder<TNewDependencies>
   displayName: (displayName: string) => QueryBuilder<TDependencies>
-  trace: () => QueryBuilder<TDependencies>
   as: <TOutput>(
     inner: (dependencies: TDependencies) => TOutput
   ) => OblongQuery<TDependencies, TOutput>
@@ -26,7 +24,6 @@ const makeQuery = <TDependencies>(
   const configuration: QueryConfiguration<TDependencies> = {
     dependencies: initialDependencies,
     displayName: `Unknown Query ${displayNameIncrementor}`,
-    trace: false,
   }
 
   const builderInstance: QueryBuilder<TDependencies> = {
@@ -39,10 +36,6 @@ const makeQuery = <TDependencies>(
     },
     displayName: (displayName: string) => {
       configuration.displayName = displayName
-      return builderInstance
-    },
-    trace: () => {
-      configuration.trace = true
       return builderInstance
     },
     as: <TOutput>(inner: (dependencies: TDependencies) => TOutput) => {
