@@ -1,4 +1,4 @@
-import { OblongCommandIn, OblongQuery } from './common';
+import { OblongCommand, OblongQuery } from './common';
 declare type StateValue = null | undefined | number | boolean | string | object | any[];
 interface StateConfiguration<TValue extends StateValue> {
     defaultValue: TValue;
@@ -10,7 +10,7 @@ export declare class OblongState<TValue extends StateValue = undefined> {
     oblongType: string;
     constructor(newConfiguration?: Partial<StateConfiguration<TValue>>);
     get query(): OblongQuery<{}, TValue>;
-    get command(): OblongCommandIn<{}, TValue>;
+    get command(): OblongCommand<{}>;
 }
 export declare class OblongStateBuilder<TValue extends StateValue = undefined> extends OblongState<TValue> {
     constructor(newConfiguration?: Partial<StateConfiguration<TValue>>);

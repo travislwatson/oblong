@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { Action } from 'redux'
-import { OblongCommandIn, OblongQuery } from './common'
+import { OblongCommand, OblongQuery } from './common'
 
 const defaultOblong = {}
 const oblongSelector = (state) => (state ? state.oblong : defaultOblong)
@@ -116,13 +116,13 @@ export class OblongState<TValue extends StateValue = undefined> {
     }
   }
 
-  public get command(): OblongCommandIn<{}, TValue> {
+  public get command(): OblongCommand<{}> {
     if (!this.cachedSelector)
       this.cachedSelector = makeSelector(this.configuration)
 
     return {
       oblongType: 'command',
-      materialize: (dispatch, _getState) => (newValue: TValue) => {
+      materialize: (dispatch, _getState) => (newValue: any) => {
         Object.freeze(newValue)
         return dispatch({
           type: `SET ${this.configuration.locator}`,

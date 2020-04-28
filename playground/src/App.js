@@ -5,19 +5,15 @@ const profile = O.createState()
   .withDefault({ name: 'John Doe' })
   .as('user.profile')
 
-// const name = O.createState().withDefault('John Doe').as('user.profile.name')
-
 const changeCase = O.createCommand()
   .with({ profile })
   .as((o) => {
     const up = o.args[0]
-    console.log(`Before: ${o.profile.name}`)
 
     o.profile = {
       ...o.profile,
       name: o.profile.name[up ? 'toUpperCase' : 'toLowerCase']() ?? 'BOOM',
     }
-    console.log(`After: ${o.profile.name}`)
   })
 
 const firstName = O.createQuery()
