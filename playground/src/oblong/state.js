@@ -1,13 +1,4 @@
 import { createSelector } from 'reselect';
-/**
- * Idea just came to me. Because of how materialize works (passing in both dispatch and getState), we can support
- * two different syntaxes with state: one using destructuring like:
- *   const [name, setName] = useState('John Doe')
- * and another similar to mobX and react-easy-state's proxy usage (but it doesn't need proxy support, only properties support)
- *   view...as((o) => <input type="text" value={o.name} onChange={e => o.name = e.target.value}) />
- * Because it can be implemented as a get/set property on the o bound dependencies!
- * And unlike useRef, where setting the .current value doesn't trigger a re-render, this does! Because it's just a dispatch! neat.
- */
 const defaultOblong = {};
 const oblongSelector = (state) => (state ? state.oblong : defaultOblong);
 let locatorIdIncrementor = 0;

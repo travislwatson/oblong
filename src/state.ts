@@ -2,16 +2,6 @@ import { createSelector } from 'reselect'
 import { Action } from 'redux'
 import { OblongCommandIn, OblongQuery } from './common'
 
-/**
- * Idea just came to me. Because of how materialize works (passing in both dispatch and getState), we can support
- * two different syntaxes with state: one using destructuring like:
- *   const [name, setName] = useState('John Doe')
- * and another similar to mobX and react-easy-state's proxy usage (but it doesn't need proxy support, only properties support)
- *   view...as((o) => <input type="text" value={o.name} onChange={e => o.name = e.target.value}) />
- * Because it can be implemented as a get/set property on the o bound dependencies!
- * And unlike useRef, where setting the .current value doesn't trigger a re-render, this does! Because it's just a dispatch! neat.
- */
-
 const defaultOblong = {}
 const oblongSelector = (state) => (state ? state.oblong : defaultOblong)
 
@@ -143,20 +133,6 @@ export class OblongState<TValue extends StateValue = undefined> {
       inner: () => undefined as any,
     }
   }
-
-  // public command(
-  //   dispatch: any,
-  //   // TODO use query + getState support setSomething(oldValue => oldValue + 1)
-  //   // TODO use Object.is to bail out of state updates
-  //   getState: any
-  // ): (newValue: TValue) => SetAction<TValue> {
-  //   return (newValue: TValue) =>
-  //     dispatch({
-  //       type: `SET ${this.configuration.locator}`,
-  //       meta: { isOblong: true },
-  //       payload: newValue,
-  //     })
-  // }
 }
 
 // TODO figure out how to support array destructuring for [query, command]

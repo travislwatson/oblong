@@ -1,5 +1,5 @@
-import { useDispatch, useSelector, useStore } from 'react-redux'
-import { Unmaterialized, OblongDependency } from './common'
+import { useSelector, useStore } from 'react-redux'
+import { Unmaterialized } from './common'
 import * as React from 'react'
 
 export interface OblongView<TDependencies, TProps> extends React.FC<TProps> {
