@@ -7,6 +7,7 @@ interface StateConfiguration<TValue extends StateValue> {
 export declare class OblongState<TValue extends StateValue = undefined> {
     protected configuration: StateConfiguration<TValue>;
     cachedSelector: (state: any) => TValue;
+    oblongType: string;
     constructor(newConfiguration?: Partial<StateConfiguration<TValue>>);
     get query(): OblongQuery<{}, TValue>;
     get command(): OblongCommandIn<{}, TValue>;

@@ -1,56 +1,61 @@
-import React, { useCallback, useMemo } from 'react'
+import React from 'react'
 import { OblongApp, O } from 'oblong'
-import { useStore, useSelector } from 'react-redux'
 
-const {
-  query: nameQuery,
-  command: nameCommand,
-  cachedSelector,
-} = O.createState().withDefault('John Doe').as('user.profile.name')
+const profile = O.createState()
+  .withDefault({ name: 'John Doe' })
+  .as('user.profile')
 
-const makeUpperCaseCommand = O.createCommand()
-  .with({ nameQuery, nameCommand })
+// const name = O.createState().withDefault('John Doe').as('user.profile.name')
+
+const changeCase = O.createCommand()
+  .with({ profile })
   .as((o) => {
-    console.log(`Before: ${o.nameQuery}`)
-    o.nameCommand(o.nameQuery?.toUpperCase() ?? 'BOOM')
-    console.log(`After: ${o.nameQuery}`)
+    const up = o.args[0]
+    console.log(`Before: ${o.profile.name}`)
+
+    o.profile = {
+      ...o.profile,
+      name: o.profile.name[up ? 'toUpperCase' : 'toLowerCase']() ?? 'BOOM',
+    }
+    console.log(`After: ${o.profile.name}`)
   })
 
-const firstNameQuery = O.createQuery()
-  .with({ name: nameQuery })
-  .as((o) => o.name.split(' ')[0])
+const firstName = O.createQuery()
+  .with({ profile })
+  .as((o) => o.profile.name.split(' ')[0])
 
-const Greeter = () => {
-  const { dispatch, getState } = useStore()
-  const name = nameQuery.materialize(dispatch, getState)
-  const firstName = firstNameQuery.materialize(dispatch, getState)
-  const setName = useMemo(() => nameCommand.materialize(dispatch, getState), [
-    dispatch,
-    getState,
-  ])
-  // no way to trigger a re-render yet... uh oh.
-  const ignored = useSelector(cachedSelector)
-  const onChangeName = useCallback((e) => setName(e.target.value), [setName])
-  const makeUpperCase = useMemo(
-    () => makeUpperCaseCommand.materialize(dispatch, getState),
-    [dispatch, getState]
-  )
-
-  return (
+const Greeter = O.createView()
+  .with({
+    profile,
+    changeCase,
+    firstName,
+  })
+  .as((o) => (
     <>
-      <div>Name: {name}</div>
-      <div>First Name: {firstName}</div>
+      <div>Name: {o.profile.name}</div>
+      <div>First Name: {o.firstName}</div>
       <div>
-        <input type="text" value={name} onChange={onChangeName} />
+        <input
+          type="text"
+          value={o.profile.name}
+          onChange={(e) => {
+            o.profile = {
+              ...o.profile,
+              name: e.target.value,
+            }
+          }}
+        />
       </div>
       <div>
-        <button type="button" onClick={makeUpperCase}>
+        <button type="button" onClick={() => o.changeCase(true)}>
           Make Upper Case
+        </button>
+        <button type="button" onClick={() => o.changeCase(false)}>
+          Make Lower Case
         </button>
       </div>
     </>
-  )
-}
+  ))
 
 export const App = () => (
   <OblongApp>

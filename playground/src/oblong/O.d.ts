@@ -1,5 +1,6 @@
 export declare const O: {
-    createState: () => import("./state").OblongStateBuilder<undefined>;
     createCommand: () => import("./command").CommandBuilder<unknown>;
+    createState: () => import("./state").OblongStateBuilder<undefined>;
     createQuery: () => import("./query").QueryBuilder<unknown>;
+    createView: () => import("./view").ViewBuilder<unknown>;
 };

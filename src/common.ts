@@ -1,5 +1,5 @@
 export interface OblongDependency<TMaterialized> {
-  oblongType: 'command' | 'query'
+  oblongType: 'command' | 'query' | 'state' | 'view'
   materialize: (
     dispatch: (action: any) => void,
     getState: () => any
@@ -88,6 +88,7 @@ export interface OblongQuery<TDependencies, TOutput>
   extends OblongDependency<TOutput> {
   oblongType: 'query'
   inner: (dependencies: TDependencies) => TOutput
+  selector: (state: any) => TOutput
 }
 
 // This is the magic sauce! Copied from Proxy example in Typescript docs... allows unmaterializing while preserving types

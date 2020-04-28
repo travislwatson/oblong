@@ -39,35 +39,36 @@ const getNamespaceSelector = (namespace) => {
 const makeSelector = ({ defaultValue, locator, }) => {
     const isNestingLocator = nestingLocatorPattern.test(locator);
     if (!isNestingLocator)
-        return createSelector([unorganized], (unorganized) => unorganized[locator] || defaultValue);
+        return createSelector([unorganized], (unorganized) => unorganized.hasOwnProperty(locator) ? unorganized[locator] : defaultValue);
     const isNamespaced = locator.includes('.');
     if (!isNamespaced)
-        return createSelector([oblongSelector], (oblongSelector) => oblongSelector[locator] || defaultUnorganized);
+        return createSelector([oblongSelector], (oblongSelector) => oblongSelector.hasOwnProperty(locator)
+            ? oblongSelector[locator]
+            : defaultUnorganized);
     const namespacePropSplitLocation = locator.lastIndexOf('.');
     const namespace = locator.substr(0, namespacePropSplitLocation);
     const namespaceSelector = getNamespaceSelector(namespace);
     const prop = locator.substr(namespacePropSplitLocation + 1);
-    return createSelector([namespaceSelector], (namespaceSelector) => {
-        return namespaceSelector[prop] || defaultValue;
-    });
+    return createSelector([namespaceSelector], (namespaceSelector) => namespaceSelector.hasOwnProperty(prop)
+        ? namespaceSelector[prop]
+        : defaultValue);
 };
 export class OblongState {
     constructor(newConfiguration = {}) {
+        this.oblongType = 'state';
         this.configuration = Object.assign(Object.assign({}, defaultConfiguration), newConfiguration);
         if (!this.configuration.locator)
             this.configuration.locator = `Unnamed State ${locatorIdIncrementor++}`;
-        this.cachedSelector = makeSelector(this.configuration);
     }
     get query() {
         if (!this.cachedSelector)
             this.cachedSelector = makeSelector(this.configuration);
         return {
             oblongType: 'query',
-            materialize: (_dispatch, getState) => {
-                console.log({ materializing: this.cachedSelector(getState()) });
-                return this.cachedSelector(getState());
-            },
-            inner: ({}) => undefined,
+            // This probably won't be used... is it required? Does materialize have to be on everything?
+            materialize: (_dispatch, getState) => this.cachedSelector(getState()),
+            inner: () => undefined,
+            selector: this.cachedSelector,
         };
     }
     get command() {
@@ -75,12 +76,15 @@ export class OblongState {
             this.cachedSelector = makeSelector(this.configuration);
         return {
             oblongType: 'command',
-            materialize: (dispatch, _getState) => (newValue) => dispatch({
-                type: `SET ${this.configuration.locator}`,
-                meta: { isOblong: true },
-                payload: newValue,
-            }),
-            inner: ({}) => undefined,
+            materialize: (dispatch, _getState) => (newValue) => {
+                Object.freeze(newValue);
+                return dispatch({
+                    type: `SET ${this.configuration.locator}`,
+                    meta: { isOblong: true },
+                    payload: newValue,
+                });
+            },
+            inner: () => undefined,
         };
     }
 }
@@ -90,6 +94,7 @@ export class OblongStateBuilder extends OblongState {
         super(newConfiguration);
     }
     withDefault(defaultValue) {
+        Object.freeze(defaultValue);
         return new OblongStateBuilder(Object.assign(Object.assign({}, this.configuration), { defaultValue }));
     }
     as(locator) {

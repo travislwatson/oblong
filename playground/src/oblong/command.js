@@ -36,12 +36,25 @@ const makeCommand = (initialDependencies) => {
                             case 'query':
                                 Object.defineProperty(boundDependencies, key, {
                                     enumerable: true,
-                                    get: () => dependency.materialize(dispatch, getState),
+                                    get: () => dependency.query.selector(getState()),
                                 });
                                 break;
+                            case 'state':
+                                Object.defineProperty(boundDependencies, key, {
+                                    enumerable: true,
+                                    get: () => dependency.query.selector(getState()),
+                                    set: dependency.command.materialize(dispatch, getState),
+                                });
+                                break;
+                            default:
+                                throw new Error('Unknown dependency provided to Oblong view');
                         }
                     }
-                    return (...args) => inner(Object.assign(Object.assign({}, boundDependencies), { args }));
+                    return (...args) => {
+                        ;
+                        boundDependencies.args = args;
+                        return inner(boundDependencies);
+                    };
                 },
                 inner,
             };

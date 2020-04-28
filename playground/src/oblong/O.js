@@ -1,4 +1,5 @@
 import { createState } from './state';
 import { createCommand } from './command';
 import { createQuery } from './query';
-export const O = { createState, createCommand, createQuery };
+import { createView } from './view';
+export const O = { createCommand, createState, createQuery, createView };

@@ -72,17 +72,17 @@ const makeSelector = <TValue extends StateValue>({
   const isNestingLocator = nestingLocatorPattern.test(locator)
 
   if (!isNestingLocator)
-    return createSelector(
-      [unorganized],
-      (unorganized) => unorganized[locator] || defaultValue
+    return createSelector([unorganized], (unorganized) =>
+      unorganized.hasOwnProperty(locator) ? unorganized[locator] : defaultValue
     )
 
   const isNamespaced = locator.includes('.')
 
   if (!isNamespaced)
-    return createSelector(
-      [oblongSelector],
-      (oblongSelector) => oblongSelector[locator] || defaultUnorganized
+    return createSelector([oblongSelector], (oblongSelector) =>
+      oblongSelector.hasOwnProperty(locator)
+        ? oblongSelector[locator]
+        : defaultUnorganized
     )
 
   const namespacePropSplitLocation = locator.lastIndexOf('.')
@@ -91,14 +91,17 @@ const makeSelector = <TValue extends StateValue>({
   const namespaceSelector = getNamespaceSelector(namespace)
   const prop = locator.substr(namespacePropSplitLocation + 1)
 
-  return createSelector([namespaceSelector], (namespaceSelector) => {
-    return namespaceSelector[prop] || defaultValue
-  })
+  return createSelector([namespaceSelector], (namespaceSelector) =>
+    namespaceSelector.hasOwnProperty(prop)
+      ? namespaceSelector[prop]
+      : defaultValue
+  )
 }
 
 export class OblongState<TValue extends StateValue = undefined> {
   protected configuration: StateConfiguration<TValue>
   public cachedSelector: (state: any) => TValue
+  public oblongType = 'state'
 
   constructor(newConfiguration: Partial<StateConfiguration<TValue>> = {}) {
     this.configuration = {
@@ -108,8 +111,6 @@ export class OblongState<TValue extends StateValue = undefined> {
 
     if (!this.configuration.locator)
       this.configuration.locator = `Unnamed State ${locatorIdIncrementor++}`
-
-    this.cachedSelector = makeSelector(this.configuration)
   }
 
   public get query(): OblongQuery<{}, TValue> {
@@ -118,11 +119,10 @@ export class OblongState<TValue extends StateValue = undefined> {
 
     return {
       oblongType: 'query',
-      materialize: (_dispatch, getState) => {
-        console.log({ materializing: this.cachedSelector(getState()) })
-        return this.cachedSelector(getState())
-      },
-      inner: ({}) => undefined as any,
+      // This probably won't be used... is it required? Does materialize have to be on everything?
+      materialize: (_dispatch, getState) => this.cachedSelector(getState()),
+      inner: () => undefined as any,
+      selector: this.cachedSelector,
     }
   }
 
@@ -132,13 +132,15 @@ export class OblongState<TValue extends StateValue = undefined> {
 
     return {
       oblongType: 'command',
-      materialize: (dispatch, _getState) => (newValue: TValue) =>
-        dispatch({
+      materialize: (dispatch, _getState) => (newValue: TValue) => {
+        Object.freeze(newValue)
+        return dispatch({
           type: `SET ${this.configuration.locator}`,
           meta: { isOblong: true },
           payload: newValue,
-        }),
-      inner: ({}) => undefined as any,
+        })
+      },
+      inner: () => undefined as any,
     }
   }
 
@@ -166,7 +168,8 @@ export class OblongStateBuilder<
   }
 
   public withDefault<TNewValue extends StateValue>(defaultValue: TNewValue) {
-    return new OblongStateBuilder<TNewValue>({
+    Object.freeze(defaultValue)
+    return new OblongStateBuilder<typeof defaultValue>({
       ...this.configuration,
       defaultValue,
     })

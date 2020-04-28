@@ -29,8 +29,6 @@ const makeQuery = <TDependencies>(
     trace: false,
   }
 
-  const selectorCache: any
-
   const builderInstance: QueryBuilder<TDependencies> = {
     with: <TNewDependencies>(
       dependencies: Unmaterialized<TNewDependencies>
@@ -48,37 +46,36 @@ const makeQuery = <TDependencies>(
       return builderInstance
     },
     as: <TOutput>(inner: (dependencies: TDependencies) => TOutput) => {
+      const dependencyKeys = Object.keys(configuration.dependencies)
+      const dependencyValues = dependencyKeys.map((i) => {
+        const dependency = configuration.dependencies[i]
+        switch (dependency.oblongType) {
+          case 'query':
+            return dependency.selector
+          case 'state':
+            return dependency.query.selector
+          default:
+            throw new Error('Invalid dependency provided to Oblong view')
+        }
+      })
+
+      const remappedInner = (...args) =>
+        inner(
+          dependencyKeys.reduce(
+            (out, i, index) => ({ ...out, [i]: args[index] }),
+            {}
+          ) as any
+        )
+
+      const selector = createSelector(dependencyValues, remappedInner)
+
       return {
         oblongType: 'query',
-        materialize: (
-          _dispatch: (action: any) => void,
-          getState: () => any
-        ) => {
-          // OKAY gotta stop for the night, but I've totally borked this.
-          // The .materialize syntax is not compatible with selectors, because they need to be
-          // bound at definition time due to underlying reselect passthru compatibility
-          // It also means queries aren't compatible with useSelector, which is kindof a huge bummer
-          if (!selectorCache) {
-            const dependencyKeys = Object.keys(
-              configuration.dependencies
-            ) as (keyof TDependencies)[]
-            const dependencyValues = dependencyKeys.map((i) =>
-              configuration.dependencies[i].materialize(_dispatch, getState)
-            )
-
-            const remappedInner = (...args) =>
-              inner(
-                dependencyKeys.reduce(
-                  (out, i, index) => ({ ...out, [i]: args[index] }),
-                  {}
-                ) as any
-              )
-
-            selectorCache = createSelector(dependencyValues, remappedInner)
-          }
-          selector(getState())
-        },
+        // TODO is this even necessary
+        materialize: (dispatch: (action: any) => void, getState: () => any) =>
+          selector(getState),
         inner,
+        selector,
       }
     },
   }

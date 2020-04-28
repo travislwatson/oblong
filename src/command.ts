@@ -1,4 +1,3 @@
-import { Dispatch } from 'redux'
 import {
   OblongCommand,
   OblongCommandIn,
@@ -114,13 +113,28 @@ const makeCommand = <TDependencies>(
               case 'query':
                 Object.defineProperty(boundDependencies, key, {
                   enumerable: true,
-                  get: () => dependency.materialize(dispatch, getState),
+                  get: () => (dependency as any).query.selector(getState()),
                 })
                 break
+              case 'state':
+                Object.defineProperty(boundDependencies, key, {
+                  enumerable: true,
+                  get: () => (dependency as any).query.selector(getState()),
+                  set: (dependency as any).command.materialize(
+                    dispatch,
+                    getState
+                  ),
+                })
+                break
+              default:
+                throw new Error('Unknown dependency provided to Oblong view')
             }
           }
 
-          return (...args) => inner({ ...boundDependencies, args })
+          return (...args) => {
+            ;(boundDependencies as any).args = args
+            return inner(boundDependencies)
+          }
         },
         inner,
       }

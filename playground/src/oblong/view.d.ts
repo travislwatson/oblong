@@ -1,16 +1,12 @@
-interface ViewConfiguration<TDependencies> {
-    displayName: string;
-    dependencies: TDependencies;
+import { Unmaterialized } from './common';
+import * as React from 'react';
+export interface OblongView<TDependencies, TProps> extends React.FC<TProps> {
+    inner: React.FC<TDependencies & TProps>;
 }
-declare class ViewBuilder<TDependencies> {
-    private configuration;
-    constructor(configuration: ViewConfiguration<TDependencies>);
-    with<TNewDependencies>(dependencies: TNewDependencies): ViewBuilder<TNewDependencies>;
-    name(displayName: string): ViewBuilder<TDependencies>;
-    as(functionalComponent: (o: TDependencies) => any): {
-        (props: any): any;
-        displayName: string;
-    };
+export interface ViewBuilder<TDependencies> {
+    with: <TNewDependencies>(dependencies: Unmaterialized<TNewDependencies>) => ViewBuilder<TNewDependencies>;
+    displayName: (displayName: string) => ViewBuilder<TDependencies>;
+    trace: () => ViewBuilder<TDependencies>;
+    as: <TProps = {}>(inner: React.FC<TDependencies & TProps>) => OblongView<TDependencies, TProps>;
 }
-export declare const view: (configuration?: ViewConfiguration<{}>) => ViewBuilder<{}>;
-export {};
+export declare const createView: () => ViewBuilder<unknown>;
