@@ -1,3 +1,11 @@
+# Warning
+
+This project is extremely early and in proof of concept phase. The API is missing. Core features are buggy. It has almost no documentation. Tests are non-existent.
+
+Proceed at your own peril.
+
+If you're curious about something, the answer might be in [FAQ](faq.md). If you want to look at some of the things that have steered the development of Oblong, check out [References](references.md). To look at the growing list of what needs to be done for the MVP, see [TODO](todo.md).
+
 # Installation
 
 Install Oblong from `npm i oblong`.
@@ -40,7 +48,7 @@ export const name = O.createState()
   .as('user.profile.name')
 ```
 
-Okay, so we're creating a piece of state which has a default of `'John Doe'`. So far so good, but what's the `as` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `name = 'Jane Doe'`, then our state tree would look like:
+So we're creating a piece of state which has a default of `'John Doe'`. But what's the `as` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `name = 'Jane Doe'`, then our state tree would look like:
 
 ```json
 {
@@ -80,11 +88,11 @@ export const saveProfile = O.createCommand()
 
 While optional, a command without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.createCommand().as()` is required to create a bare minimum no-op command.
 
+Commands can depend on on other commands, and can use the results of queries and state.
+
 ## Query
 
 Oblong is designed for normalized state storage, which mean queries to denormalize that data into something more useful are critical in making your application fast and organized. They should be pure declarative functions: use only the inputs and return only the outputs.
-
-A query can depend on state or other queries. Queries cannot depend on commands, and state cannot be changed inside queries.
 
 ```js
 import { O } from 'oblong'
@@ -99,15 +107,19 @@ export const fullName = O.createQuery()
   .as((o) => `${o.firstName} ${o.middleInitialWithDot} ${o.lastName}`)
 ```
 
+A query can depend on state or other queries. Queries cannot depend on commands, and state cannot be changed inside queries.
+
 Queries tend to be more manageable when they're smaller. As a general rule of thumb, if the selector gets large enough for you to want an explicit `return` lambda just due to its complexity, consider breaking it down.
 
-While optional, a command without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.createCommand().as()` is required to create a bare minimum no-op query that always returns `undefined`.
+While optional, a query without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.createQuery().as()` is required to create a bare minimum no-op query that always returns `undefined`.
 
 ## View
 
 Last, but far from least, views wrap all your hard work creating state, commands, and queries into a neat package for your user.
 
 Views can depend on any combination of commands, queries, and state. State can be set inside views, but you might find it more manageable to prefer commands for your state assignments.
+
+Technically, views are Functional React Components, which means you have the full power of hooks available.
 
 ```js
 import { O } from 'oblong'

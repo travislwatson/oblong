@@ -1,4 +1,27 @@
-import { OblongCommand, Unmaterialized } from './common'
+import { OblongCommand, Unmaterialized, Dependency } from './common'
+
+// Look here: https://www.typescriptlang.org/docs/handbook/advanced-types.html#type-inference-in-conditional-types
+// The second example there with nested conditional types and `infer` MIGHT be what we need to get command signature correct
+
+// type Test<T> = T extends Dependency<
+//   (a: infer TA, b: infer TB, c: infer TC) => infer TOut
+// >
+//   ? (a: TA, b: TB, c: TC) => TOut
+//   : T extends Dependency<(a: infer TA, b: infer TB) => infer TOut>
+//   ? (a: TA, b: TB) => TOut
+//   : T extends Dependency<(a: infer TA) => infer TOut>
+//   ? (a: TA) => TOut
+//   : (...args: any[]) => any
+
+// const unwrap = <T>(input: T): Test<T> => {
+//   return 0 as any
+// }
+
+// const test = <TIn1, TOut>(input: Dependency<(arg1: string) => number>) => {
+//   const a = unwrap(input)
+//   // this should work... sigh
+//   const aOut = a('blah')
+// }
 
 interface Config<TDep> {
   dependencies: Unmaterialized<TDep>
@@ -46,7 +69,7 @@ const makeCommand = <TDep>(initialDependencies: Unmaterialized<TDep>) => {
               case 'query':
                 Object.defineProperty(boundDependencies, key, {
                   enumerable: true,
-                  get: () => (dependency as any).query.selector(getState()),
+                  get: () => (dependency as any).selector(getState()),
                 })
                 break
               case 'state':

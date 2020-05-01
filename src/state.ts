@@ -64,7 +64,9 @@ const makeSelector = <TValue extends StateValue>({
 
   if (!isNamespaced)
     return createSelector([oblongSelector], (oblongSelector) =>
-      oblongSelector.hasOwnProperty(locator) ? oblongSelector[locator] : empty
+      oblongSelector.hasOwnProperty(locator)
+        ? oblongSelector[locator]
+        : defaultValue
     )
 
   const namespacePropSplitLocation = locator.lastIndexOf('.')

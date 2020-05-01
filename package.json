@@ -19,7 +19,7 @@
     "url": "https://github.com/traviswatsonws/oblong/issues"
   },
   "homepage": "https://github.com/traviswatsonws/oblong#readme",
-  "peerDependencies": {
+  "dependencies": {
     "react": "<17",
     "react-redux": "<8",
     "react-router-dom": "<6",
@@ -37,6 +37,5 @@
     "redux": "<5",
     "redux-devtools-extension": "<3",
     "reselect": "<5"
-  },
-  "dependencies": {}
+  }
 }
