@@ -8,7 +8,7 @@ If you're curious about something, the answer might be in [FAQ](faq.md). If you 
 
 # Installation
 
-Install Oblong from `npm i oblong`.
+Install Oblong and dependencies from `npm i oblong react react-redux react-router-dom redux redux-devtools-extension reselect`.
 
 Wrap the root of your application with `<OblongApp>`:
 

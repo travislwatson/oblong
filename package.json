@@ -1,6 +1,6 @@
 {
   "name": "oblong",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Meta-framework for productive React+Redux development",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -19,7 +19,7 @@
     "url": "https://github.com/traviswatsonws/oblong/issues"
   },
   "homepage": "https://github.com/traviswatsonws/oblong#readme",
-  "dependencies": {
+  "peerDependencies": {
     "react": "<17",
     "react-redux": "<8",
     "react-router-dom": "<6",
