@@ -109,8 +109,6 @@ export const fullName = O.createQuery()
 
 A query can depend on state or other queries. Queries cannot depend on commands, and state cannot be changed inside queries.
 
-Queries tend to be more manageable when they're smaller. As a general rule of thumb, if the selector gets large enough for you to want an explicit `return` lambda just due to its complexity, consider breaking it down.
-
 While optional, a query without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.createQuery().as()` is required to create a bare minimum no-op query that always returns `undefined`.
 
 ## View
