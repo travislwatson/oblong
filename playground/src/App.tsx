@@ -1,5 +1,4 @@
-import React from 'react'
-import { O } from 'oblong'
+import { React, O } from 'oblong'
 
 const age = O.createState().withDefault<number>(0).as('user.age')
 
@@ -11,15 +10,21 @@ const firstName = O.createQuery()
   .with({ profile })
   .as((o) => o.profile.name.split(' ')[0])
 
+const testQueryMutation = O.createQuery()
+  .with({ profile, age })
+  .as((o) => ({ name: o.profile.name, age: o.age }))
+
 const flipCase = O.createCommand()
-  .with({ profile })
+  .with({ profile, age, testQueryMutation })
   .as<[boolean], void>((o) => {
     const [upper] = o.args
 
     o.profile = {
       ...o.profile,
-      name: o.profile.name[o.args[0] ? 'toUpperCase' : 'toLowerCase'](),
+      name: o.profile.name[upper ? 'toUpperCase' : 'toLowerCase'](),
     }
+
+    o.age = 15
   })
 
 const Profile = O.createView()

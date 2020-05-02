@@ -6,6 +6,13 @@ import {
   Queryable,
   OblongState,
 } from './coreTypes'
+import { deepFreeze } from './utils/deepFreeze'
+
+declare var process: {
+  env: {
+    NODE_ENV: string
+  }
+}
 
 export interface QueryBuilder<TDep> {
   with: <TNewDep>(
@@ -27,13 +34,18 @@ const createSelectorFromDependencies = <TDep, TOut>(
 
     return dependency.selector
   })
-  const remappedInner = (...args) =>
-    inner(
+  const remappedInner = (...args) => {
+    const output = inner(
       dependencyKeys.reduce(
         (out, i, index) => ({ ...out, [i]: args[index] }),
         {}
       ) as any
     )
+
+    if (process.env.NODE_ENV !== 'production') deepFreeze(output)
+
+    return output
+  }
 
   return createSelector(dependentSelectors, remappedInner)
 }

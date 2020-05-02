@@ -102,6 +102,9 @@ export const createState = <T extends StateValue>() => {
         resolve: (store) => ({
           get: () => selector(store.getState()),
           set: (newValue) => {
+            // Skip the dispatch if it's guaranteed not to change anything
+            if (newValue === selector(store.getState())) return
+
             if (process.env.NODE_ENV !== 'production') deepFreeze(newValue)
 
             store.dispatch({

@@ -1,10 +1,14 @@
 # Warning
 
-This project is extremely early and in proof of concept phase. The API is missing. Core features are buggy. It has almost no documentation. Tests are non-existent.
+This project is extremely early and in proof of concept phase. The API is mostly still missing. Core features are buggy. It has almost no documentation. Tests are non-existent.
 
 Proceed at your own peril.
 
 If you're curious about something, the answer might be in [FAQ](faq.md). If you want to look at some of the things that have steered the development of Oblong, check out [References](references.md). To look at the growing list of what needs to be done for the MVP, see [TODO](todo.md).
+
+# Release log
+
+- 0.1.0: A lot of refactor work on types. Feels like the "core four" pieces are getting pretty stable in their fundamental states. Swapped playground over to Typescripe to validate types. Type inference is working very well most of the time. Some generic guidance will be beneficial, especially for command arguments. Wasn't able to let command argument names be inferenced. Maybe something to fix in the future. Added deepFreeze too and put it behind production optimization guard.
 
 # Installation
 
