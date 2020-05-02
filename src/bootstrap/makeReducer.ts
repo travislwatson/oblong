@@ -1,3 +1,5 @@
+import { OblongState } from '../core/types'
+
 const nestingLocatorPattern = /^([a-z_]+\.)*([a-z_]+)$/i
 
 export const makeReducer = () => {
@@ -5,13 +7,14 @@ export const makeReducer = () => {
   // TODO handle portableReducers
 
   return (
-    previousState = { oblong: { unorganized: {} } },
+    previousState = { app: {}, oblong: { unorganized: {} } },
     { type, payload, meta }
-  ) => {
-    if (meta?.isOblong && type.startsWith('SET ')) {
+  ): OblongState => {
+    if ((meta?.isOblong || meta?.isOblongInternal) && type.startsWith('SET ')) {
       const locator = type.substring(4)
       const isNestingLocator = nestingLocatorPattern.test(locator)
 
+      // Put all unorganized state into oblong area to keep noise away from app
       if (!isNestingLocator)
         return {
           ...previousState,
@@ -24,13 +27,14 @@ export const makeReducer = () => {
           },
         }
 
+      const rootKey = meta?.isOblongInternal ? 'oblong' : 'app'
       const isNamespaced = locator.includes('.')
 
       if (!isNamespaced)
         return {
           ...previousState,
-          oblong: {
-            ...previousState.oblong,
+          [rootKey]: {
+            ...previousState[rootKey],
             [locator]: payload,
           },
         }
@@ -38,9 +42,9 @@ export const makeReducer = () => {
       const pathPartsAndProp = locator.split('.')
       const pathParts = pathPartsAndProp.slice(0, -1)
       const prop = pathPartsAndProp.slice(-1)
-      const newOblongState = { ...previousState.oblong }
+      const newRoot = { ...previousState[rootKey] }
 
-      let workingLevel = newOblongState
+      let workingLevel = newRoot
       for (const part of pathParts) {
         workingLevel[part] = workingLevel[part] ? { ...workingLevel[part] } : {}
         workingLevel = workingLevel[part]
@@ -49,7 +53,7 @@ export const makeReducer = () => {
 
       return {
         ...previousState,
-        oblong: newOblongState,
+        [rootKey]: newRoot,
       }
     }
 

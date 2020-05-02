@@ -75,11 +75,47 @@ However, because Oblong chose to use the Dependency Injection pattern, it is abl
 
 IE 11 is not end of life. Many business and applications must, and should, support it. So until our core dependencies prevent us from maintaining IE 11 compatibility, Oblong will support it.
 
+## Writing Oblong applications
+
 #### How do I organize my Oblong application?
 
 Years ago I read an answer to a similar question about React. The answer was unfortunately perfect: move it around until it feels right.
 
 Oblong takes this to heart. Moving things around is meant to feel as painless as possible given the constraints of a JavaScript application. Don't like where that piece of state is? Move it and update your references. The decoupling provided by dependency injection means you can organize your modules however you see fit. One file per atomic piece? Sure. One file per feature? Yep. One file per page? If you want. Whatever feels right. And if it doesn't feel right, move stuff around until it does.
+
+#### Can I use destructuring?
+
+While there's nothing stopping you from destructuring your `o` dependencies, doing so will materialize all values. This breaks two things: you can no longer use an assignment for state such as `o.name =`.
+
+The other thing is that state and query values are no longer live in views and commands.
+
+Here's an example. Without destructuring, assignments and queries are live like you'd expect:
+
+```js
+const updateAge = O.createCommand()
+  .with({ age })
+  .as((o) => {
+    console.log(o.age) // 30
+    o.age = 35
+    console.log(o.age) // 35
+  })
+```
+
+With destructuring, to update you'll need to use a setter function, and even then the values aren't a live view:
+
+```js
+const updateAge = O.createCommand()
+  .with({ age, setAge })
+  .as(({ age, setAge }) => {
+    console.log(age) // 30
+    age = 35
+    console.log(age) // 35 -- This is a lie, it's only changed locally, not in redux!
+    setAge(40) // This will work, but...
+    console.age(age) // 35 -- The local value will never be updated
+  })
+```
+
+Because of this odd behavior, it is strongly recommended to avoid destructuring, and always use `o.` when accessing any dependnecy.
 
 ## Interoperability
 

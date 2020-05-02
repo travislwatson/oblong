@@ -7,7 +7,7 @@ import {
   OblongStore,
   isQueryable,
   Queryable,
-} from './coreTypes'
+} from './types'
 
 export interface ViewBuilder<TDep> {
   with: <TNewDep>(dependencies: Dependencies<TNewDep>) => ViewBuilder<TNewDep>
@@ -23,6 +23,15 @@ export const createView = <TDep>() => {
       return (instance as unknown) as ViewBuilder<TNewDep>
     },
     as: <TProps = {}>(inner: React.FC<TDep & TProps>) => {
+      /**
+       * TODO, this is rendering too frequently. I think unfortunately I'm going to need
+       * to introduce a component boundary. For that component boundary, the outer layer
+       * needs to fire the `useSelector` calls. Then, combine only the selector Dependencies
+       * with the incoming props. Pass that combination to a the memoizedInner. The memoized
+       * inner should have closure access to the bound depencies and can render the inner
+       * view normally.
+       */
+      // const memoizedInner = React.memo(inner)
       const dependencyKeys = Object.keys(deps)
       const queryableDependencies = dependencyKeys
         .map((i) => deps[i])

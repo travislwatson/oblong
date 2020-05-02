@@ -39,15 +39,7 @@ export type Command<TDep, TArgs extends any[], TOut> = Injectable<
   (...args: TArgs) => TOut
 > & { inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut }
 
-export type StateValue =
-  | null
-  | undefined
-  | number
-  | boolean
-  | string
-  | { [key: string]: StateValue }
-  | StateValue[]
-export type State<T extends StateValue> = Injectable<T> & Queryable<T>
+export type State<T> = Injectable<T> & Queryable<T>
 
 export type View<TDep, TProps> = React.FC<TProps> & {
   inner: React.FC<TDep & TProps>

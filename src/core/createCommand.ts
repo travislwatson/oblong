@@ -1,4 +1,4 @@
-import { Command, Dependencies, CommandArgs, Injectable } from './coreTypes'
+import { Command, Dependencies, CommandArgs, Injectable } from './types'
 
 export interface CommandBuilder<TDep> {
   with: <TNewDep>(

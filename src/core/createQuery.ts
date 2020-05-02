@@ -5,8 +5,8 @@ import {
   isQueryable,
   Queryable,
   OblongState,
-} from './coreTypes'
-import { deepFreeze } from './utils/deepFreeze'
+} from './types'
+import { deepFreeze } from '../utils/deepFreeze'
 
 declare var process: {
   env: {

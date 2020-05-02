@@ -1,8 +1,17 @@
 import * as React from 'react'
-export { React }
-export { createView } from './view'
-export { createState } from './state'
-export { createCommand } from './command'
-export { createQuery } from './query'
-export { O } from './O'
-export { OblongApp } from './OblongApp'
+import { Link } from 'react-router-dom'
+// Re-exporting common dependencies
+export { React, Link }
+
+// Bootstrap
+export { OblongApp } from './bootstrap/OblongApp'
+
+// Core
+export { createCommand } from './core/createCommand'
+export { createQuery } from './core/createQuery'
+export { createState } from './core/createState'
+export { createView } from './core/createView'
+export { O } from './core/O'
+
+// Extras
+export { currentLocation } from './routing/currentRoute'

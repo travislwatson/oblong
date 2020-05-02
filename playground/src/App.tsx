@@ -1,9 +1,10 @@
-import { React, O } from 'oblong'
+import { React, O, currentLocation, Link } from 'oblong'
 
 const age = O.createState().withDefault<number>(0).as('user.age')
 
 const profile = O.createState()
   .withDefault({ name: 'John Doe' })
+  .setEquality('shallow')
   .as('user.profile')
 
 const firstName = O.createQuery()
@@ -64,6 +65,9 @@ const Profile = O.createView()
           />
         </label>
       </div>
+      <div>
+        <Link to="/apple">Apple</Link> | <Link to="/banana">Banana</Link>
+      </div>
     </>
   ))
 
@@ -71,10 +75,29 @@ const Greeter = O.createView()
   .with({ firstName })
   .as((o) => <h2>Hello, {o.firstName}</h2>)
 
+const LocationViewer = O.createView()
+  .with({ currentLocation })
+  .as((o) => <div>{JSON.stringify(o.currentLocation)}</div>)
+
+const isOnBananaRoute = O.createQuery()
+  .with({ currentLocation })
+  .as((o) => o.currentLocation.pathname === '/banana')
+
+const BananaRoute = O.createView()
+  .with({ isOnBananaRoute })
+  .as((o) => {
+    console.log('BananaRoute render', o.isOnBananaRoute)
+
+    if (!o.isOnBananaRoute) return null
+    return <h4>BANANA TIME</h4>
+  })
+
 export const App = () => (
   <>
     <h1>Playground</h1>
     <Greeter />
     <Profile />
+    <LocationViewer />
+    <BananaRoute />
   </>
 )
