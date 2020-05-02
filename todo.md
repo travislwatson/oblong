@@ -23,3 +23,4 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - Persist to query string
 - object.freeze query results
 - support class syntax
+- Accept a Queryable for withDefault
