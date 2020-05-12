@@ -15,3 +15,5 @@ export { O } from './core/O'
 
 // Extras
 export { currentLocation } from './routing/currentRoute'
+export { isLoading } from './loading/globalLoading'
+export { asQueryable } from './injectables/asQueryable'

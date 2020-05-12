@@ -16,10 +16,9 @@ const makeStore = (): OblongStore => {
   const middlewares = []
   const middleWareEnhancer = applyMiddleware(...middlewares)
 
-  const store = createStore(
-    makeReducer(),
-    composeWithDevTools(middleWareEnhancer)
-  ) as Partial<OblongStore>
+  const store = createStore(makeReducer(), composeWithDevTools(middleWareEnhancer)) as Partial<
+    OblongStore
+  >
 
   return store as OblongStore
 }

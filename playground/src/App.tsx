@@ -1,4 +1,13 @@
-import { React, O, currentLocation, Link } from 'oblong'
+import { React, O, currentLocation, Link, isLoading, asQueryable } from 'oblong'
+
+const twoSeconds = () =>
+  new Promise((resolve) => {
+    setTimeout(resolve, 2000)
+  })
+const twoSecondsFail = () =>
+  new Promise((_, reject) => {
+    setTimeout(reject, 2000)
+  })
 
 const age = O.createState().withDefault<number>(0).as('user.age')
 
@@ -17,6 +26,7 @@ const testQueryMutation = O.createQuery()
 
 const flipCase = O.createCommand()
   .with({ profile, age, testQueryMutation })
+  .named('flipCase')
   .as<[boolean], void>((o) => {
     const [upper] = o.args
 
@@ -86,11 +96,45 @@ const isOnBananaRoute = O.createQuery()
 const BananaRoute = O.createView()
   .with({ isOnBananaRoute })
   .as((o) => {
-    console.log('BananaRoute render', o.isOnBananaRoute)
-
     if (!o.isOnBananaRoute) return null
     return <h4>BANANA TIME</h4>
   })
+
+const doGoodSlow = O.createCommand()
+  .named('doGoodSlow')
+  .as(async () => {
+    await twoSeconds()
+  })
+
+const doBadSlow = O.createCommand()
+  .named('doBadSlow')
+  .as(async () => {
+    await twoSecondsFail()
+  })
+
+const loaderState = asQueryable((state) =>
+  JSON.stringify(state?.oblong?.loading?.globallyLoading, undefined, 2)
+)
+
+const LoaderTest = O.createView()
+  .with({ isLoading, doGoodSlow, doBadSlow, loaderState })
+  .as((o) => (
+    <div>
+      <h4>LoaderTest</h4>
+      <div>Is Loading: {o.isLoading ? 'true' : 'false'}</div>
+      <div>
+        <button type="button" onClick={o.doGoodSlow}>
+          Good
+        </button>
+        <button type="button" onClick={o.doBadSlow}>
+          Bad
+        </button>
+      </div>
+      <pre>
+        <code>{o.loaderState}</code>
+      </pre>
+    </div>
+  ))
 
 export const App = () => (
   <>
@@ -99,5 +143,6 @@ export const App = () => (
     <Profile />
     <LocationViewer />
     <BananaRoute />
+    <LoaderTest />
   </>
 )

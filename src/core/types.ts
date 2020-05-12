@@ -31,13 +31,13 @@ export type QueryDependencies<T> = {
   [P in keyof T]: Queryable<T[P]>
 }
 
-export type Query<TDep, TOut> = Injectable<TOut> &
-  Queryable<TOut> & { inner: (dep: TDep) => TOut }
+export type Query<TDep, TOut> = Injectable<TOut> & Queryable<TOut> & { inner: (dep: TDep) => TOut }
 
 export type CommandArgs<TDep, TArgs> = TDep & { args: TArgs }
-export type Command<TDep, TArgs extends any[], TOut> = Injectable<
-  (...args: TArgs) => TOut
-> & { inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut }
+export type Command<TDep, TArgs extends any[], TOut> = Injectable<(...args: TArgs) => TOut> & {
+  inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
+  id: string
+}
 
 export type State<T> = Injectable<T> & Queryable<T>
 

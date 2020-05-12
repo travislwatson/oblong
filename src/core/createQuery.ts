@@ -1,12 +1,7 @@
 import { createSelector, Selector } from 'reselect'
-import {
-  Query,
-  QueryDependencies,
-  isQueryable,
-  Queryable,
-  OblongState,
-} from './types'
+import { Query, QueryDependencies, isQueryable, Queryable, OblongState } from './types'
 import { deepFreeze } from '../utils/deepFreeze'
+import { asQueryable } from '../injectables/asQueryable'
 
 declare var process: {
   env: {
@@ -15,9 +10,7 @@ declare var process: {
 }
 
 export interface QueryBuilder<TDep> {
-  with: <TNewDep>(
-    dependencies: QueryDependencies<TNewDep>
-  ) => QueryBuilder<TNewDep>
+  with: <TNewDep>(dependencies: QueryDependencies<TNewDep>) => QueryBuilder<TNewDep>
   as: <TOut>(inner: (dependencies: TDep) => TOut) => Query<TDep, TOut>
 }
 
@@ -36,10 +29,7 @@ const createSelectorFromDependencies = <TDep, TOut>(
   })
   const remappedInner = (...args) => {
     const output = inner(
-      dependencyKeys.reduce(
-        (out, i, index) => ({ ...out, [i]: args[index] }),
-        {}
-      ) as any
+      dependencyKeys.reduce((out, i, index) => ({ ...out, [i]: args[index] }), {}) as any
     )
 
     if (process.env.NODE_ENV !== 'production') deepFreeze(output)
@@ -62,14 +52,7 @@ export const createQuery = <TDep>() => {
       const selector = createSelectorFromDependencies(inner, deps)
 
       return {
-        [isQueryable]: true,
-        resolve: (store) => ({
-          get: () => selector(store.getState()),
-          set: () => {
-            throw new Error(`Cannot assign to query.`)
-          },
-        }),
-        selector,
+        ...asQueryable(selector),
         inner,
       }
     },

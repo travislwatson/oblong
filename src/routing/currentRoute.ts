@@ -18,6 +18,7 @@ const storedLocation = createInternalState()
 
 export const updateLocation = O.createCommand()
   .with({ storedLocation })
+  .named('oblong.updateLocation')
   .as<[OblongLocation], void>((o) => {
     o.storedLocation = {
       hash: o.args[0].hash,

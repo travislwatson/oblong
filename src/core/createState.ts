@@ -17,10 +17,7 @@ if (process.env.NODE_ENV !== 'production') Object.freeze(empty)
 const app = (state) => (state ? state.app : empty)
 const oblong = (state) => (state ? state.oblong : empty)
 
-const unorganized = createSelector(
-  [oblong],
-  (oblong) => oblong.unorganized || empty
-)
+const unorganized = createSelector([oblong], (oblong) => oblong.unorganized || empty)
 
 const namespaceSelectorCache: { [key: string]: (state: any) => any } = {}
 const internalNamespaceSelectorCache: {
@@ -28,25 +25,20 @@ const internalNamespaceSelectorCache: {
 } = {}
 
 const getNamespaceSelector = (namespace: string, internal: boolean) => {
-  const namespaceCache = internal
-    ? internalNamespaceSelectorCache
-    : namespaceSelectorCache
+  const namespaceCache = internal ? internalNamespaceSelectorCache : namespaceSelectorCache
   if (!namespaceCache.hasOwnProperty(namespace)) {
     const namespacePieces = namespace.split('.')
 
     // TODO revisit this and see if there's a faster way to do it
     // Maybe the new Function from string trick?
     // This selector needs to be very fast
-    namespaceCache[namespace] = createSelector(
-      [internal ? oblong : app],
-      (root) => {
-        let currentStep = root
-        for (const namespacePiece of namespacePieces) {
-          currentStep = currentStep[namespacePiece] || empty
-        }
-        return currentStep
+    namespaceCache[namespace] = createSelector([internal ? oblong : app], (root) => {
+      let currentStep = root
+      for (const namespacePiece of namespacePieces) {
+        currentStep = currentStep[namespacePiece] || empty
       }
-    )
+      return currentStep
+    })
   }
 
   return namespaceCache[namespace]
@@ -78,17 +70,11 @@ const makeSelector = <TValue>(
   const prop = locator.substr(namespacePropSplitLocation + 1)
 
   return createSelector([namespaceSelector], (namespaceSelector) =>
-    namespaceSelector.hasOwnProperty(prop)
-      ? namespaceSelector[prop]
-      : defaultValue
+    namespaceSelector.hasOwnProperty(prop) ? namespaceSelector[prop] : defaultValue
   )
 }
 
-type EqualityFn<T> =
-  | 'exact'
-  | 'shallow'
-  | 'never'
-  | ((oldValue: T, newValue: T) => boolean)
+type EqualityFn<T> = 'exact' | 'shallow' | 'never' | ((oldValue: T, newValue: T) => boolean)
 
 export interface StateBuilder<T> {
   withDefault: <TNew>(defaultValue: TNew) => StateBuilder<TNew>
@@ -117,18 +103,13 @@ const createStateUnknown = <T>(internal: boolean) => {
       return (instance as unknown) as StateBuilder<TNew>
     },
     setEquality: (equality) => {
-      if (
-        typeof equality === 'string' &&
-        builtinEqualityFns.indexOf(equality) > -1
-      ) {
+      if (typeof equality === 'string' && builtinEqualityFns.indexOf(equality) > -1) {
         equalityFn = equalityFns[equality]
       } else if (typeof equality === 'function') {
         equalityFn = equality
       } else {
         throw new Error(
-          `Equality must either be a function or one of: ${builtinEqualityFns.join(
-            ', '
-          )}`
+          `Equality must either be a function or one of: ${builtinEqualityFns.join(', ')}`
         )
       }
       return instance

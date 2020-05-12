@@ -1,13 +1,6 @@
 import * as React from 'react'
 import { useStore, useSelector } from 'react-redux'
-import {
-  Dependencies,
-  Injectable,
-  View,
-  OblongStore,
-  isQueryable,
-  Queryable,
-} from './types'
+import { Dependencies, Injectable, View, OblongStore, isQueryable, Queryable } from './types'
 
 export interface ViewBuilder<TDep> {
   with: <TNewDep>(dependencies: Dependencies<TNewDep>) => ViewBuilder<TNewDep>
