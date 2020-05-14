@@ -8,8 +8,5 @@ export const fromSelector = <TOut>(
   [isQueryable]: true,
   resolve: (store) => ({
     get: () => selector(store.getState()),
-    set: () => {
-      throw new Error(`Cannot assign to query.`)
-    },
   }),
 })

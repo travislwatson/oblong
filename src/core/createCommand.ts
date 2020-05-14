@@ -63,9 +63,6 @@ export const createCommand = <TDep>() => {
 
               return output
             },
-            set: () => {
-              throw new Error(`Cannot assign to command.`)
-            },
           }
         },
       }

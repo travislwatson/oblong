@@ -18,9 +18,6 @@ export const portableReducer = <TState>(
 
     return {
       get: () => selector(store.getState()),
-      set: () => {
-        throw new Error(`Cannot assign to reducer.`)
-      },
     }
   }
   return { location, reducer, selector, resolve, [isQueryable]: true }

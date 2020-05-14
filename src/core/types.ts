@@ -12,7 +12,7 @@ export interface OblongStore extends Store {
 
 interface PropertyDefinition<T> {
   get: () => T
-  set: (newValue: T) => void
+  set?: (newValue: T) => void
 }
 
 export interface Injectable<T> {

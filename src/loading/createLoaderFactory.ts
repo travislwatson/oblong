@@ -44,9 +44,6 @@ export const createLoaderFactory = (location: string) => {
             }
           },
         }),
-        set: () => {
-          throw new Error(`Cannot assign to loader.`)
-        },
       }),
       named: (name: string) => {
         loadingCount = createLoadingState(name)

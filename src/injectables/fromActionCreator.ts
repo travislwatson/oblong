@@ -5,8 +5,5 @@ export const fromActionCreator = <TArgs extends any[]>(
 ): Injectable<(...args: TArgs) => void> => ({
   resolve: (store) => ({
     get: () => (...args) => store.dispatch(actionCreator(...args)),
-    set: () => {
-      throw new Error(`Cannot assign to action creator.`)
-    },
   }),
 })
