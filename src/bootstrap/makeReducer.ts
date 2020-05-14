@@ -7,6 +7,9 @@ export const makeReducer = (portableReducers: any) => {
 
   return (previousState = { app: {}, oblong: { unorganized: {} } }, action): OblongState => {
     const { type, payload, meta } = action
+
+    if (meta?.isOblongHydrate) return payload
+
     let hasChanges = false
     const maybeNewState: any = {
       ...previousState,

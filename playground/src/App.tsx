@@ -8,7 +8,9 @@ import {
   createLoader,
   fromActionCreator,
   portableReducer,
+  hydrate,
 } from 'oblong'
+import { testHydrateState } from './testHydrateState'
 
 const twoSeconds = () =>
   new Promise((resolve) => {
@@ -199,6 +201,21 @@ const Counter = O.createView()
   .with({ counter })
   .as((o) => <div>Counter: {o.counter}</div>)
 
+const Hydrate = O.createView()
+  .with({ hydrate })
+  .as((o) => (
+    <div>
+      Hydrate:
+      <button
+        onClick={() => {
+          o.hydrate(testHydrateState)
+        }}
+      >
+        Do it
+      </button>
+    </div>
+  ))
+
 export const App = () => (
   <>
     <h1>Playground</h1>
@@ -209,5 +226,6 @@ export const App = () => (
     <LoaderTest />
     <DoWierdTest />
     <Counter />
+    <Hydrate />
   </>
 )

@@ -10,8 +10,8 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - ~~Loading tracking by watching async commands~~
 - ~~Accept a Queryable for withDefault~~
 - ~~Portable reducers~~
+- ~~Hydrate~~
 - Events + Emits + Subscription
-- Hydrate
 - state namespace
 - create-react-app template
 - Traits
