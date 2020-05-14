@@ -9,7 +9,11 @@ const twoSecondsFail = () =>
     setTimeout(reject, 2000)
   })
 
-const age = O.createState().withDefault<number>(0).as('user.age')
+const defaultAge = O.createQuery()
+  .with({ currentLocation })
+  .as((o) => o.currentLocation.pathname.length)
+
+const age = O.createState().withDefault<number>(defaultAge).as('user.age')
 
 const profile = O.createState()
   .withDefault({ name: 'John Doe' })

@@ -8,7 +8,7 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - ~~Use Object.is to bail out of mutations~~
 - ~~object.freeze query results~~
 - ~~Loading tracking by watching async commands~~
-- Accept a Queryable for withDefault
+- ~~Accept a Queryable for withDefault~~
 - Events + Emits + Subscription
 - Portable reducers
 - Hydrate

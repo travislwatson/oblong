@@ -1,6 +1,6 @@
 import { createSelector, Selector } from 'reselect'
 import { shallowEqual } from 'react-redux'
-import { State, OblongState, isQueryable } from './types'
+import { State, OblongState, isQueryable, Queryable } from './types'
 import { deepFreeze } from '../utils/deepFreeze'
 
 declare var process: {
@@ -45,21 +45,21 @@ const getNamespaceSelector = (namespace: string, internal: boolean) => {
 }
 
 const makeSelector = <TValue>(
-  defaultValue: TValue,
+  defaultSelector: (state: any) => TValue,
   locator: string,
   internal: boolean
 ): Selector<OblongState, TValue> => {
   const isNestingLocator = nestingLocatorPattern.test(locator)
 
   if (!isNestingLocator)
-    return createSelector([unorganized], (unorganized) =>
+    return createSelector([unorganized, defaultSelector], (unorganized, defaultValue) =>
       unorganized.hasOwnProperty(locator) ? unorganized[locator] : defaultValue
     )
 
   const isNamespaced = locator.includes('.')
 
   if (!isNamespaced)
-    return createSelector([internal ? oblong : app], (root) =>
+    return createSelector([internal ? oblong : app, defaultSelector], (root, defaultValue) =>
       root.hasOwnProperty(locator) ? root[locator] : defaultValue
     )
 
@@ -69,7 +69,7 @@ const makeSelector = <TValue>(
   const namespaceSelector = getNamespaceSelector(namespace, internal)
   const prop = locator.substr(namespacePropSplitLocation + 1)
 
-  return createSelector([namespaceSelector], (namespaceSelector) =>
+  return createSelector([namespaceSelector, defaultSelector], (namespaceSelector, defaultValue) =>
     namespaceSelector.hasOwnProperty(prop) ? namespaceSelector[prop] : defaultValue
   )
 }
@@ -77,7 +77,7 @@ const makeSelector = <TValue>(
 type EqualityFn<T> = 'exact' | 'shallow' | 'never' | ((oldValue: T, newValue: T) => boolean)
 
 export interface StateBuilder<T> {
-  withDefault: <TNew>(defaultValue: TNew) => StateBuilder<TNew>
+  withDefault: <TNew>(defaultValue: TNew | Queryable<TNew>) => StateBuilder<TNew>
   setEquality: (equality: EqualityFn<T>) => StateBuilder<T>
   as: (locator?: string) => State<T>
 }
@@ -93,13 +93,18 @@ const builtinEqualityFns = Object.keys(equalityFns)
 
 let id = 0
 const createStateUnknown = <T>(internal: boolean) => {
-  let def: T = undefined
+  let defaultSelector = (state: any): T => undefined
   let equalityFn: (a: T, b: T) => boolean = equalityFns.exact
 
   const instance: StateBuilder<T> = {
-    withDefault: <TNew>(defaultValue: TNew) => {
-      if (process.env.NODE_ENV !== 'production') deepFreeze(defaultValue)
-      def = defaultValue as any
+    withDefault: <TNew>(defaultValue: TNew | Queryable<TNew>) => {
+      if (defaultValue[isQueryable]) {
+        defaultSelector = (defaultValue as Queryable<TNew>).selector as any
+      } else {
+        if (process.env.NODE_ENV !== 'production') deepFreeze(defaultValue)
+        defaultSelector = (() => defaultValue) as any
+      }
+
       return (instance as unknown) as StateBuilder<TNew>
     },
     setEquality: (equality) => {
@@ -115,7 +120,7 @@ const createStateUnknown = <T>(internal: boolean) => {
       return instance
     },
     as: (locator: string = `?-${id++}`): State<T> => {
-      const selector = makeSelector(def, locator, internal)
+      const selector = makeSelector(defaultSelector, locator, internal)
       const actionCreator = (payload: T) => ({
         type: `SET ${locator}`,
         meta: { [internal ? 'isOblongInternal' : 'isOblong']: true },
