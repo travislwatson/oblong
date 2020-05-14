@@ -15,5 +15,6 @@ export { O } from './core/O'
 
 // Extras
 export { currentLocation } from './routing/currentRoute'
-export { isLoading } from './loading/globalLoading'
+export { isLoading } from './loading/commandLoading'
+export { createLoader } from './loading/createLoader'
 export { asQueryable } from './injectables/asQueryable'

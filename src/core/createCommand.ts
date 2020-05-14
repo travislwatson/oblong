@@ -1,10 +1,11 @@
 import { Command, Dependencies, CommandArgs, Injectable } from './types'
 import { makeId } from '../utils/makeId'
-import { createGlobalLoader } from '../loading/globalLoading'
+import { createCommandLoader } from '../loading/commandLoading'
 
 export interface CommandBuilder<TDep> {
   with: <TNewDep>(dependencies: Dependencies<TNewDep>) => CommandBuilder<TNewDep>
   named: (name: string) => CommandBuilder<TDep>
+  ignoreLoading: () => CommandBuilder<TDep>
   as: <TArgs extends any[], TOut>(
     inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
   ) => Command<TDep, TArgs, TOut>
@@ -13,6 +14,7 @@ export interface CommandBuilder<TDep> {
 export const createCommand = <TDep>() => {
   let deps = {} as Dependencies<TDep>
   let id = makeId()
+  let ignoreLoading = false
 
   const instance: CommandBuilder<TDep> = {
     with: <TNewDep>(dependencies: Dependencies<TNewDep>) => {
@@ -23,9 +25,13 @@ export const createCommand = <TDep>() => {
       id = name
       return instance
     },
+    ignoreLoading: () => {
+      ignoreLoading = true
+      return instance
+    },
     as: <TArgs extends any[], TOut>(inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut) => {
       const dependencyKeys = Object.keys(deps)
-      const { start, stop } = createGlobalLoader(id)
+      const loaderInjectable = createCommandLoader().named(id)
 
       return {
         inner,
@@ -41,31 +47,19 @@ export const createCommand = <TDep>() => {
             {}
           )
 
+          const loader = loaderInjectable.resolve(store)
+
           Object.defineProperties(boundDependencies, propertyDescriptors)
-          // Todo delay loader so as not to be so chatty, especially for commands that aren't async
-          const startLoader = () => {
-            let isLoading = false
-            let isStopped = false
-            setTimeout(() => {
-              if (isStopped) return
-              isLoading = true
-              start(store)
-            }, 50)
-            return () => {
-              if (isLoading) stop(store)
-              isStopped = true
-            }
-          }
 
           return {
             get: () => (...args: TArgs) => {
-              store.dispatch({ type: `COMMAND ${id}` })
+              store.dispatch({ type: `COMMAND ${id}`, payload: args })
               boundDependencies.args = args
 
               const output = inner(boundDependencies) as any
-
-              const stopLoader = startLoader()
-              Promise.resolve(output).then(stopLoader, stopLoader)
+              if (!ignoreLoading) {
+                loader.get().track(async () => await Promise.resolve(output))
+              }
 
               return output
             },

@@ -1,4 +1,4 @@
-import { React, O, currentLocation, Link, isLoading, asQueryable } from 'oblong'
+import { React, O, currentLocation, Link, isLoading, asQueryable, createLoader } from 'oblong'
 
 const twoSeconds = () =>
   new Promise((resolve) => {
@@ -112,16 +112,41 @@ const doBadSlow = O.createCommand()
     await twoSecondsFail()
   })
 
-const loaderState = asQueryable((state) =>
-  JSON.stringify(state?.oblong?.loading?.globallyLoading, undefined, 2)
-)
+const withoutLoader = O.createCommand()
+  .named('withoutLoader')
+  .ignoreLoading()
+  .as(async () => {
+    await twoSeconds()
+  })
+
+const namedLoader = createLoader().named('namedLoader')
+
+const withNamedLoader = O.createCommand()
+  .with({ namedLoader })
+  .named('withNamedLoader')
+  .ignoreLoading()
+  .as(async (o) => {
+    await o.namedLoader.track(async () => {
+      await twoSeconds()
+    })
+  })
+
+const loaderState = asQueryable((state) => JSON.stringify(state?.oblong?.loading, undefined, 1))
 
 const LoaderTest = O.createView()
-  .with({ isLoading, doGoodSlow, doBadSlow, loaderState })
+  .with({
+    isLoading,
+    doGoodSlow,
+    doBadSlow,
+    loaderState,
+    withoutLoader,
+    withNamedLoader,
+    namedLoader,
+  })
   .as((o) => (
     <div>
       <h4>LoaderTest</h4>
-      <div>Is Loading: {o.isLoading ? 'true' : 'false'}</div>
+      <div>Is Global Loading: {o.isLoading.toString()}</div>
       <div>
         <button type="button" onClick={o.doGoodSlow}>
           Good
@@ -129,8 +154,14 @@ const LoaderTest = O.createView()
         <button type="button" onClick={o.doBadSlow}>
           Bad
         </button>
+        <button type="button" onClick={o.withoutLoader}>
+          Without Loader
+        </button>
+        <button type="button" onClick={o.withNamedLoader} disabled={o.namedLoader.isLoading}>
+          With Named Loader
+        </button>
       </div>
-      <pre>
+      <pre style={{ fontSize: '0.9rem' }}>
         <code>{o.loaderState}</code>
       </pre>
     </div>

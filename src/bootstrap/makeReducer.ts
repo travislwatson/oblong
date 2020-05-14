@@ -1,6 +1,6 @@
 import { OblongState } from '../core/types'
 
-const nestingLocatorPattern = /^([a-z_]+\.)*([a-z_]+)$/i
+const nestingLocatorPattern = /^([a-z0-9_-]+\.)*([a-z0-9_-]+)$/i
 
 export const makeReducer = () => {
   // const portableReducers = {}

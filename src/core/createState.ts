@@ -9,7 +9,7 @@ declare var process: {
   }
 }
 
-const nestingLocatorPattern = /^([a-z_]+\.)*([a-z_]+)$/i
+const nestingLocatorPattern = /^([a-z0-9_-]+\.)*([a-z0-9_-]+)$/i
 
 const empty = {}
 if (process.env.NODE_ENV !== 'production') Object.freeze(empty)
@@ -116,10 +116,16 @@ const createStateUnknown = <T>(internal: boolean) => {
     },
     as: (locator: string = `?-${id++}`): State<T> => {
       const selector = makeSelector(def, locator, internal)
+      const actionCreator = (payload: T) => ({
+        type: `SET ${locator}`,
+        meta: { [internal ? 'isOblongInternal' : 'isOblong']: true },
+        payload,
+      })
 
       return {
         [isQueryable]: true,
         selector,
+        actionCreator,
         resolve: (store) => ({
           get: () => selector(store.getState()),
           set: (newValue) => {
@@ -127,11 +133,7 @@ const createStateUnknown = <T>(internal: boolean) => {
 
             if (process.env.NODE_ENV !== 'production') deepFreeze(newValue)
 
-            store.dispatch({
-              type: `SET ${locator}`,
-              meta: { [internal ? 'isOblongInternal' : 'isOblong']: true },
-              payload: newValue,
-            })
+            store.dispatch(actionCreator(newValue))
           },
         }),
       }

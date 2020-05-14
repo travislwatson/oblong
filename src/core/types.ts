@@ -33,14 +33,25 @@ export type QueryDependencies<T> = {
 
 export type Query<TDep, TOut> = Injectable<TOut> & Queryable<TOut> & { inner: (dep: TDep) => TOut }
 
+export interface Dispatchable<TPayload> {
+  actionCreator: (payload: TPayload) => { type: string; payload: TPayload; meta: unknown }
+}
+
 export type CommandArgs<TDep, TArgs> = TDep & { args: TArgs }
 export type Command<TDep, TArgs extends any[], TOut> = Injectable<(...args: TArgs) => TOut> & {
   inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
   id: string
 }
 
-export type State<T> = Injectable<T> & Queryable<T>
+export type State<T> = Injectable<T> & Queryable<T> & Dispatchable<T>
 
 export type View<TDep, TProps> = React.FC<TProps> & {
   inner: React.FC<TDep & TProps>
 }
+
+type ResolvedLoader = {
+  isLoading: boolean
+  track: <TOut>(asyncAction: () => Promise<TOut>) => Promise<TOut>
+}
+
+export type Loader = Injectable<ResolvedLoader> & { named: (name: string) => Loader }
