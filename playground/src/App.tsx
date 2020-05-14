@@ -7,6 +7,7 @@ import {
   fromSelector,
   createLoader,
   fromActionCreator,
+  portableReducer,
 } from 'oblong'
 
 const twoSeconds = () =>
@@ -192,6 +193,12 @@ const DoWierdTest = O.createView()
     </div>
   ))
 
+const counter = portableReducer('counter', (previous: number = 0) => previous + 1)
+
+const Counter = O.createView()
+  .with({ counter })
+  .as((o) => <div>Counter: {o.counter}</div>)
+
 export const App = () => (
   <>
     <h1>Playground</h1>
@@ -201,5 +208,6 @@ export const App = () => (
     <BananaRoute />
     <LoaderTest />
     <DoWierdTest />
+    <Counter />
   </>
 )

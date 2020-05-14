@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Provider } from 'react-redux'
-import { applyMiddleware, createStore } from 'redux'
+import { applyMiddleware, createStore, Reducer } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import { BrowserRouter, BrowserRouterProps } from 'react-router-dom'
 import { makeReducer } from './makeReducer'
@@ -15,10 +15,17 @@ type OblongConfigProps = BrowserRouterProps & {
 const makeStore = (): OblongStore => {
   const middlewares = []
   const middleWareEnhancer = applyMiddleware(...middlewares)
+  const portableReducers = {}
 
-  const store = createStore(makeReducer(), composeWithDevTools(middleWareEnhancer)) as Partial<
-    OblongStore
-  >
+  const store = createStore(
+    makeReducer(portableReducers),
+    composeWithDevTools(middleWareEnhancer)
+  ) as Partial<OblongStore>
+
+  store.registerReducer = (location: string, reducer: Reducer) => {
+    portableReducers[location] = reducer
+    store.replaceReducer(makeReducer(portableReducers))
+  }
 
   return store as OblongStore
 }

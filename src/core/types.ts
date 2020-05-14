@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Store } from 'redux'
+import { Store, Reducer } from 'redux'
 import { History } from 'history'
 import { Selector } from 'reselect'
 
@@ -7,6 +7,7 @@ export type OblongState = any
 
 export interface OblongStore extends Store {
   history: History
+  registerReducer: (location: string, reducer: Reducer) => void
 }
 
 interface PropertyDefinition<T> {
@@ -55,3 +56,9 @@ type ResolvedLoader = {
 }
 
 export type Loader = Injectable<ResolvedLoader> & { named: (name: string) => Loader }
+
+export type PortableReducer<TState = any> = Injectable<TState> &
+  Queryable<TState> & {
+    location: string
+    reducer: Reducer<TState>
+  }
