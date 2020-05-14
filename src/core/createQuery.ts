@@ -1,7 +1,7 @@
 import { createSelector, Selector } from 'reselect'
 import { Query, QueryDependencies, isQueryable, Queryable, OblongState } from './types'
 import { deepFreeze } from '../utils/deepFreeze'
-import { asQueryable } from '../injectables/asQueryable'
+import { fromSelector } from '../injectables/fromSelector'
 
 declare var process: {
   env: {
@@ -52,7 +52,7 @@ export const createQuery = <TDep>() => {
       const selector = createSelectorFromDependencies(inner, deps)
 
       return {
-        ...asQueryable(selector),
+        ...fromSelector(selector),
         inner,
       }
     },

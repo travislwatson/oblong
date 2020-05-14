@@ -1,4 +1,13 @@
-import { React, O, currentLocation, Link, isLoading, asQueryable, createLoader } from 'oblong'
+import {
+  React,
+  O,
+  currentLocation,
+  Link,
+  isLoading,
+  fromSelector,
+  createLoader,
+  fromActionCreator,
+} from 'oblong'
 
 const twoSeconds = () =>
   new Promise((resolve) => {
@@ -135,7 +144,7 @@ const withNamedLoader = O.createCommand()
     })
   })
 
-const loaderState = asQueryable((state) => JSON.stringify(state?.oblong?.loading, undefined, 1))
+const loaderState = fromSelector((state) => JSON.stringify(state?.oblong?.loading, undefined, 1))
 
 const LoaderTest = O.createView()
   .with({
@@ -171,6 +180,18 @@ const LoaderTest = O.createView()
     </div>
   ))
 
+const doWeirdRaw = (name: string, age: number) => ({ type: 'doWeird', payload: { name, age } })
+const doWeird = fromActionCreator(doWeirdRaw)
+const DoWierdTest = O.createView()
+  .with({ doWeird })
+  .as((o) => (
+    <div>
+      <button type="button" onClick={() => o.doWeird('john', 1)}>
+        doWeird
+      </button>
+    </div>
+  ))
+
 export const App = () => (
   <>
     <h1>Playground</h1>
@@ -179,5 +200,6 @@ export const App = () => (
     <LocationViewer />
     <BananaRoute />
     <LoaderTest />
+    <DoWierdTest />
   </>
 )

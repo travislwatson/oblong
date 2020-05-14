@@ -1,7 +1,7 @@
 import { Queryable, isQueryable, Injectable } from '../core/types'
 import { Selector } from 'reselect'
 
-export const asQueryable = <TOut>(
+export const fromSelector = <TOut>(
   selector: Selector<any, TOut>
 ): Injectable<TOut> & Queryable<TOut> => ({
   selector,
