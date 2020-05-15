@@ -2,13 +2,14 @@
   "name": "oblong",
   "version": "0.2.3",
   "description": "Meta-framework for productive React+Redux development",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/es5/index.js",
+  "module": "dist/es6/index.js",
+  "types": "dist/es6/index.d.ts",
   "sideEffects": false,
   "scripts": {
     "start": "tsc -w --outDir \"./playground/src/oblong\"",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "tsc && tsc --build tsconfig.es5.json"
   },
   "repository": {
     "type": "git",

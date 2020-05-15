@@ -17,7 +17,7 @@ export const createLoaderFactory = (location: string) => {
     const startLoader = (store) => {
       let isLoading = false
       let isStopped = false
-      setTimeout(() => {
+      window.setTimeout(() => {
         if (isStopped) return
         isLoading = true
         const current = loadingCount.selector(store.getState())

@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "declaration": true,
+    "outDir": "./dist/es5",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "lib": ["ES2017", "DOM"]
+  },
+  "include": ["src/**/*"]
+}
