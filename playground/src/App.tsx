@@ -99,6 +99,7 @@ const Profile = O.createView()
 
 const Greeter = O.createView()
   .with({ firstName })
+  .if((o) => !!o.firstName)
   .as((o) => <h2>Hello, {o.firstName}</h2>)
 
 const LocationViewer = O.createView()
@@ -159,7 +160,7 @@ const LoaderTest = O.createView()
     withNamedLoader,
     namedLoader,
   })
-  .as((o) => (
+  .as<{ user: { name: string } }>((o) => (
     <div>
       <h4>LoaderTest</h4>
       <div>Is Global Loading: {o.isLoading.toString()}</div>
@@ -180,6 +181,7 @@ const LoaderTest = O.createView()
       <pre style={{ fontSize: '0.9rem' }}>
         <code>{o.loaderState}</code>
       </pre>
+      <div>Child: {o.user.name}</div>
     </div>
   ))
 
@@ -223,7 +225,7 @@ export const App = () => (
     <Profile />
     <LocationViewer />
     <BananaRoute />
-    <LoaderTest />
+    <LoaderTest user={{ name: 'Titus' }} />
     <DoWierdTest />
     <Counter />
     <Hydrate />

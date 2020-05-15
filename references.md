@@ -17,3 +17,5 @@ Most of these are critical of React, Redux, etc. Some disagree with Oblong's eth
 - [How to build bulletproof react components](https://dev.to/jsco/how-to-build-bulletproof-react-components-mo7)
 - [Introducing Crank](https://crank.js.org/blog/introducing-crank)
 - [A Reddit user wants "proper DI"](https://www.reddit.com/r/webdev/comments/g6g0px/im_going_to_say_it_after_using_them_for_a_year_i/fo9rhyq/?context=1)
+- [A popular post about libraries vs frameworks](https://www.brandonsmith.ninja/blog/libraries-not-frameworks)
+- [Interesting state management library embracing hooks](https://recoiljs.org/)

@@ -7,7 +7,8 @@
   "sideEffects": false,
   "scripts": {
     "start": "tsc -w --outDir \"./playground/src/oblong\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "tsc"
   },
   "repository": {
     "type": "git",

@@ -2,6 +2,7 @@ import { createInternalState } from '../core/createState'
 import { Loader } from '../core/types'
 import { makeId } from '../utils/makeId'
 
+// TODO make this configurable
 const LOADER_DELAY = 50
 
 export const createLoaderFactory = (location: string) => {

@@ -4,16 +4,23 @@ import { Dependencies, Injectable, View, OblongStore, isQueryable, Queryable } f
 
 export interface ViewBuilder<TDep> {
   with: <TNewDep>(dependencies: Dependencies<TNewDep>) => ViewBuilder<TNewDep>
+  if: <TProps>(condition: (o: TDep & TProps) => boolean) => ViewBuilder<TDep>
   as: <TProps>(inner: React.FC<TDep & TProps>) => View<TDep, TProps>
 }
 
+const defaultCondition = () => true
 export const createView = <TDep>() => {
   let deps = {} as Dependencies<TDep>
+  let renderCondition: (o: any) => boolean = defaultCondition
 
   const instance: ViewBuilder<TDep> = {
     with: <TNewDep>(dependencies: Dependencies<TNewDep>) => {
       deps = dependencies as any
       return (instance as unknown) as ViewBuilder<TNewDep>
+    },
+    if: <TProps>(condition: (o: TDep & TProps) => boolean) => {
+      renderCondition = condition
+      return instance
     },
     as: <TProps = {}>(inner: React.FC<TDep & TProps>) => {
       /**
@@ -53,6 +60,8 @@ export const createView = <TDep>() => {
         Object.defineProperties(boundDependencies, propertyDescriptors)
 
         Object.assign(boundDependencies, props)
+
+        if (!renderCondition(boundDependencies)) return null
 
         return inner(boundDependencies as TDep & TProps)
       }
