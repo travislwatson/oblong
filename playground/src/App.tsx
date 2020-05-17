@@ -54,6 +54,12 @@ const flipCase = O.createCommand()
     o.age = 15
   })
 
+const Links = O.createView().as(() => (
+  <div>
+    <Link to="/apple">Apple</Link> | <Link to="/banana">Banana</Link>
+  </div>
+))
+
 const Profile = O.createView()
   .with({ profile, flipCase, age })
   .as((o) => (
@@ -91,9 +97,7 @@ const Profile = O.createView()
           />
         </label>
       </div>
-      <div>
-        <Link to="/apple">Apple</Link> | <Link to="/banana">Banana</Link>
-      </div>
+      <Links />
     </>
   ))
 

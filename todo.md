@@ -11,7 +11,7 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - ~~Accept a Queryable for withDefault~~
 - ~~Portable reducers~~
 - ~~Hydrate~~
-- .if on a view for short circuit null rendering
+- ~~.if on a view for short circuit null rendering~~
 - Events + Emits + Subscription
 - state namespace
 - create-react-app template
@@ -25,3 +25,5 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - Persist to local/session storage
 - Persist to query string
 - support class syntax -- quick test didn't look promising on this... the defineProperty tactic doesn't work ... oh hey, what if we pass the entirety of `o` in? So you access it like `props.o` when in a class?
+- BUG: When using the event inside a command, I was seeing synthetic event errors. Need to check into this.
+- BUG: Intellisense seems to be broken inside of JS views now (TS still works). what happened here?
