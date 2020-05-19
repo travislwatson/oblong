@@ -12,12 +12,12 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - ~~Portable reducers~~
 - ~~Hydrate~~
 - ~~.if on a view for short circuit null rendering~~
-- Events + Emits + Subscription
-- state namespace
-- create-react-app template
-- Traits
+- ~~create-react-app template~~
 - Error tracking using throw (catch promises, and if the error was a default type, re-throw it so React error boundaries can work properly. Also need an OblongError type for state-based errors. Also maybe something like .onError for automatic error boundary creation)
+- Events + Emits + Subscription
 - Routing events
+- state namespace
+- Traits
 - Linting to catch stuff like using a dependency without binding it, or trying to use `o.something` without `something` being specified in the dependencies
 - form support
 - Tests

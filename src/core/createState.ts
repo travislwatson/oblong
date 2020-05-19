@@ -98,7 +98,7 @@ const createStateUnknown = <T>(internal: boolean) => {
 
   const instance: StateBuilder<T> = {
     withDefault: <TNew>(defaultValue: TNew | Queryable<TNew>) => {
-      if (defaultValue[isQueryable]) {
+      if (defaultValue?.[isQueryable]) {
         defaultSelector = (defaultValue as Queryable<TNew>).selector as any
       } else {
         if (process.env.NODE_ENV !== 'production') deepFreeze(defaultValue)

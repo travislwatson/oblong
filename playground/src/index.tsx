@@ -8,9 +8,7 @@ document.body.appendChild(target)
 
 ReactDOM.render(
   <React.StrictMode>
-    <h6>Outside OblongApp</h6>
     <OblongApp>
-      <h6>Outside App</h6>
       <App />
     </OblongApp>
   </React.StrictMode>,
