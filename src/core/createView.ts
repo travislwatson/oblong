@@ -52,9 +52,11 @@ export const createView = <TDep>() => {
 
         Object.assign(boundDependencies, props)
 
-        if (!renderCondition(boundDependencies)) return null
+        // TODO think about this. We can't conditionally call inner because if
+        // it has hooks, then conditionally rendering changes hook execution
+        const innerOutput = inner(boundDependencies as TDep & TProps)
 
-        return inner(boundDependencies as TDep & TProps)
+        return renderCondition(boundDependencies) ? innerOutput : null
       }) as unknown) as View<TDep, TProps>
 
       output.inner = inner

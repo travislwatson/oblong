@@ -104,7 +104,12 @@ const Profile = O.createView()
 const Greeter = O.createView()
   .with({ firstName })
   .if((o) => !!o.firstName)
-  .as((o) => <h2>Hello, {o.firstName}</h2>)
+  .as((o) => {
+    const [ignore] = React.useState()
+    if (ignore) return null
+
+    return <h2>Hello, {o.firstName}</h2>
+  })
 
 const LocationViewer = O.createView()
   .with({ currentLocation })
