@@ -1,4 +1,4 @@
-import { createInternalState } from '../core/createState'
+import { createInternalState } from '../core/state'
 import { Loader } from '../core/types'
 import { makeId } from '../utils/makeId'
 

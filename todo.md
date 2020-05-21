@@ -15,6 +15,7 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - ~~create-react-app template~~
 - Error tracking using throw (catch promises, and if the error was a default type, re-throw it so React error boundaries can work properly. Also need an OblongError type for state-based errors. Also maybe something like .onError for automatic error boundary creation)
 - Events + Emits + Subscription
+- Commands should auto-emit 3 events: (), .then, and .catch. Only async commands will emit .then and .catch
 - Routing events
 - state namespace
 - Traits
@@ -25,6 +26,7 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - Persist to local/session storage
 - Persist to query string
 - support class syntax -- quick test didn't look promising on this... the defineProperty tactic doesn't work ... oh hey, what if we pass the entirety of `o` in? So you access it like `props.o` when in a class?
-- Add support for
+- Command debouncing
 - BUG: When using the event inside a command, I was seeing synthetic event errors. Need to check into this. (I looked into this, I was able to repro in an async function after an await, maybe we can invoke event.persist() on arg[0] when the command returns a promise)
-- BUG: Intellisense seems to be broken inside of JS views now (TS still works). what happened here?
+- BUG: Intellisense seems to be broken inside of JS views now (TS still works). what happened here? (I thought about this, it might be TProps, since the JS has no way of specifying what the props could be, it ends up being any, and when combined like TDep & TProps, the result ends up being any. What if we put props into .props property)
+- Need a query factory to get params from a url
