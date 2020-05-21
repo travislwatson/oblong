@@ -32,37 +32,41 @@ export const createCommand = <TDep>() => {
     as: <TArgs extends any[], TOut>(inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut) => {
       const dependencyKeys = Object.keys(deps)
       const loaderInjectable = createCommandLoader().named(id)
+      let storeCache
+
+      const bound = (...args: TArgs) => {
+        const boundDependencies = {} as TDep & { args: TArgs }
+
+        const propertyDescriptors = dependencyKeys.reduce(
+          (out, i) => ({
+            ...out,
+            [i]: (deps[i] as Injectable<any>).resolve(storeCache),
+          }),
+          {}
+        )
+
+        const loader = loaderInjectable.resolve(storeCache)
+
+        Object.defineProperties(boundDependencies, propertyDescriptors)
+
+        storeCache.dispatch({ type: `COMMAND ${id}`, payload: args })
+        boundDependencies.args = args
+
+        const output = inner(boundDependencies) as any
+        if (!ignoreLoading) {
+          loader.get().track(async () => await Promise.resolve(output))
+        }
+
+        return output
+      }
 
       return {
         inner,
         id,
         resolve: (store) => {
-          const boundDependencies = {} as TDep & { args: TArgs }
-
-          const propertyDescriptors = dependencyKeys.reduce(
-            (out, i) => ({
-              ...out,
-              [i]: (deps[i] as Injectable<any>).resolve(store),
-            }),
-            {}
-          )
-
-          const loader = loaderInjectable.resolve(store)
-
-          Object.defineProperties(boundDependencies, propertyDescriptors)
-
+          storeCache = store
           return {
-            get: () => (...args: TArgs) => {
-              store.dispatch({ type: `COMMAND ${id}`, payload: args })
-              boundDependencies.args = args
-
-              const output = inner(boundDependencies) as any
-              if (!ignoreLoading) {
-                loader.get().track(async () => await Promise.resolve(output))
-              }
-
-              return output
-            },
+            get: () => bound,
           }
         },
       }
