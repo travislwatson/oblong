@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { updateLocation } from './currentRoute'
 import { O } from '../core/O'
 
-export const RouteWatcher = O.createView()
+export const RouteWatcher = O.view()
   .with({ updateLocation })
   .as(({ updateLocation }) => {
     const location = useLocation()

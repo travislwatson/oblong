@@ -21,28 +21,27 @@ const twoSecondsFail = () =>
     setTimeout(reject, 2000)
   })
 
-const defaultAge = O.createQuery()
+const defaultAge = O.query()
   .with({ currentLocation })
   .as((o) => o.currentLocation.pathname.length)
 
-const age = O.createState().withDefault<number>(defaultAge).as('user.age')
+const age = O.state().withDefault<number>(defaultAge).as('user.age')
 
-const profile = O.createState()
+const profile = O.state()
   .withDefault({ name: 'John Doe' })
   .setEquality('shallow')
   .as('user.profile')
 
-const firstName = O.createQuery()
+const firstName = O.query()
   .with({ profile })
   .as((o) => o.profile.name.split(' ')[0])
 
-const testQueryMutation = O.createQuery()
+const testQueryMutation = O.query()
   .with({ profile, age })
   .as((o) => ({ name: o.profile.name, age: o.age }))
 
-const flipCase = O.createCommand()
+const flipCase = O.command('flipCase')
   .with({ profile, age, testQueryMutation })
-  .named('flipCase')
   .as<[boolean], void>((o) => {
     const [upper] = o.args
 
@@ -54,13 +53,13 @@ const flipCase = O.createCommand()
     o.age = 15
   })
 
-const Links = O.createView().as(() => (
+const Links = O.view('Links').as(() => (
   <div>
     <Link to="/apple">Apple</Link> | <Link to="/banana">Banana</Link>
   </div>
 ))
 
-const Profile = O.createView()
+const Profile = O.view('Profile')
   .with({ profile, flipCase, age })
   .as((o) => (
     <>
@@ -101,7 +100,7 @@ const Profile = O.createView()
     </>
   ))
 
-const Greeter = O.createView()
+const Greeter = O.view('Greeter')
   .with({ firstName })
   .if((o) => !!o.firstName)
   .as((o) => {
@@ -111,35 +110,30 @@ const Greeter = O.createView()
     return <h2>Hello, {o.firstName}</h2>
   })
 
-const LocationViewer = O.createView()
+const LocationViewer = O.view('LocationViewer')
   .with({ currentLocation })
   .as((o) => <div>{JSON.stringify(o.currentLocation)}</div>)
 
-const isOnBananaRoute = O.createQuery()
+const isOnBananaRoute = O.query()
   .with({ currentLocation })
   .as((o) => o.currentLocation.pathname === '/banana')
 
-const BananaRoute = O.createView()
+const BananaRoute = O.view('BananaRoute')
   .with({ isOnBananaRoute })
   .as((o) => {
     if (!o.isOnBananaRoute) return null
     return <h4>BANANA TIME</h4>
   })
 
-const doGoodSlow = O.createCommand()
-  .named('doGoodSlow')
-  .as(async () => {
-    await twoSeconds()
-  })
+const doGoodSlow = O.command('doGoodSlow').as(async () => {
+  await twoSeconds()
+})
 
-const doBadSlow = O.createCommand()
-  .named('doBadSlow')
-  .as(async () => {
-    await twoSecondsFail()
-  })
+const doBadSlow = O.command('doBadSlow').as(async () => {
+  await twoSecondsFail()
+})
 
-const withoutLoader = O.createCommand()
-  .named('withoutLoader')
+const withoutLoader = O.command('withoutLoader')
   .ignoreLoading()
   .as(async () => {
     await twoSeconds()
@@ -147,9 +141,8 @@ const withoutLoader = O.createCommand()
 
 const namedLoader = createLoader().named('namedLoader')
 
-const withNamedLoader = O.createCommand()
+const withNamedLoader = O.command('withNamedLoader')
   .with({ namedLoader })
-  .named('withNamedLoader')
   .ignoreLoading()
   .as(async (o) => {
     await o.namedLoader.track(async () => {
@@ -159,7 +152,7 @@ const withNamedLoader = O.createCommand()
 
 const loaderState = fromSelector((state) => JSON.stringify(state?.oblong?.loading, undefined, 1))
 
-const LoaderTest = O.createView()
+const LoaderTest = O.view('LoaderTest')
   .with({
     isLoading,
     doGoodSlow,
@@ -196,7 +189,7 @@ const LoaderTest = O.createView()
 
 const doWeirdRaw = (name: string, age: number) => ({ type: 'doWeird', payload: { name, age } })
 const doWeird = fromActionCreator(doWeirdRaw)
-const DoWierdTest = O.createView()
+const DoWierdTest = O.view('DoWierdTest')
   .with({ doWeird })
   .as((o) => (
     <div>
@@ -208,11 +201,11 @@ const DoWierdTest = O.createView()
 
 const counter = portableReducer('counter', (previous: number = 0) => previous + 1)
 
-const Counter = O.createView()
+const Counter = O.view('Counter')
   .with({ counter })
   .as((o) => <div>Counter: {o.counter}</div>)
 
-const Hydrate = O.createView()
+const Hydrate = O.view('Hydrate')
   .with({ hydrate })
   .as((o) => (
     <div>

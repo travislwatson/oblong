@@ -7,10 +7,10 @@ export { React, Link }
 export { OblongApp } from './bootstrap/OblongApp'
 
 // Core
-export { createCommand } from './core/createCommand'
-export { createQuery } from './core/createQuery'
-export { createState } from './core/createState'
-export { createView } from './core/createView'
+export { command } from './core/command'
+export { query } from './core/query'
+export { state } from './core/state'
+export { view } from './core/view'
 export { O } from './core/O'
 
 // Extras

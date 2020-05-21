@@ -25,5 +25,6 @@ These are the items currently planned to be worked on before MVP 1.0. The list w
 - Persist to local/session storage
 - Persist to query string
 - support class syntax -- quick test didn't look promising on this... the defineProperty tactic doesn't work ... oh hey, what if we pass the entirety of `o` in? So you access it like `props.o` when in a class?
-- BUG: When using the event inside a command, I was seeing synthetic event errors. Need to check into this.
+- Add support for
+- BUG: When using the event inside a command, I was seeing synthetic event errors. Need to check into this. (I looked into this, I was able to repro in an async function after an await, maybe we can invoke event.persist() on arg[0] when the command returns a promise)
 - BUG: Intellisense seems to be broken inside of JS views now (TS still works). what happened here?

@@ -41,7 +41,7 @@ export interface Dispatchable<TPayload> {
 export type CommandArgs<TDep, TArgs> = TDep & { args: TArgs }
 export type Command<TDep, TArgs extends any[], TOut> = Injectable<(...args: TArgs) => TOut> & {
   inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
-  id: string
+  name: string
 }
 
 export type State<T> = Injectable<T> & Queryable<T> & Dispatchable<T>

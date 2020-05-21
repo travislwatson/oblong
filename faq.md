@@ -92,7 +92,7 @@ The other thing is that state and query values are no longer live in views and c
 Here's an example. Without destructuring, assignments and queries are live like you'd expect:
 
 ```js
-const updateAge = O.createCommand()
+const updateAge = O.command()
   .with({ age })
   .as((o) => {
     console.log(o.age) // 30
@@ -104,7 +104,7 @@ const updateAge = O.createCommand()
 With destructuring, to update you'll need to use a setter function, and even then the values aren't a live view:
 
 ```js
-const updateAge = O.createCommand()
+const updateAge = O.command()
   .with({ age, setAge })
   .as(({ age, setAge }) => {
     console.log(age) // 30

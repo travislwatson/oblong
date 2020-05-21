@@ -15,8 +15,8 @@ export const makeReducer = (portableReducers: any) => {
       ...previousState,
     }
 
-    if ((meta?.isOblong || meta?.isOblongInternal) && type.startsWith('SET ')) {
-      const locator = type.substring(4)
+    if ((meta?.isOblong || meta?.isOblongInternal) && type.endsWith('=')) {
+      const locator = type.slice(0, -1)
       const isNestingLocator = nestingLocatorPattern.test(locator)
 
       // Put all unorganized state into oblong area to keep noise away from app

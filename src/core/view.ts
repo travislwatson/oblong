@@ -9,7 +9,7 @@ export interface ViewBuilder<TDep> {
 }
 
 const defaultCondition = () => true
-export const createView = <TDep>() => {
+export const view = <TDep>(name?: string) => {
   let deps = {} as Dependencies<TDep>
   let renderCondition: (o: any) => boolean = defaultCondition
 
@@ -29,7 +29,7 @@ export const createView = <TDep>() => {
         .filter((i) => i[isQueryable])
         .map((i) => (i as Queryable<any>).selector)
 
-      const output = (React.memo((props: TProps) => {
+      const unmemoized = (props: TProps) => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         const store = useStore() as OblongStore
 
@@ -57,7 +57,11 @@ export const createView = <TDep>() => {
         const innerOutput = inner(boundDependencies as TDep & TProps)
 
         return renderCondition(boundDependencies) ? innerOutput : null
-      }) as unknown) as View<TDep, TProps>
+      }
+
+      unmemoized.displayName = name ?? 'UnnamedView'
+
+      const output = (React.memo(unmemoized) as unknown) as View<TDep, TProps>
 
       output.inner = inner
 

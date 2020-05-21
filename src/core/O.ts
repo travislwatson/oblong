@@ -1,6 +1,6 @@
-import { createState } from './createState'
-import { createCommand } from './createCommand'
-import { createQuery } from './createQuery'
-import { createView } from './createView'
+import { command } from './command'
+import { query } from './query'
+import { state } from './state'
+import { view } from './view'
 
-export const O = { createCommand, createState, createQuery, createView }
+export const O = { command, query, state, view }

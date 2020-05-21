@@ -1,5 +1,5 @@
 import { O } from '../core/O'
-import { createInternalState } from '../core/createState'
+import { createInternalState } from '../core/state'
 
 export interface OblongLocation {
   pathname: string
@@ -16,9 +16,8 @@ const storedLocation = createInternalState()
   .setEquality('shallow')
   .as('routing.location')
 
-export const updateLocation = O.createCommand()
+export const updateLocation = O.command('oblong.updateLocation')
   .with({ storedLocation })
-  .named('oblong.updateLocation')
   .as<[OblongLocation], void>((o) => {
     o.storedLocation = {
       hash: o.args[0].hash,
@@ -27,6 +26,6 @@ export const updateLocation = O.createCommand()
     }
   })
 
-export const currentLocation = O.createQuery()
+export const currentLocation = O.query()
   .with({ storedLocation })
   .as((o) => o.storedLocation)

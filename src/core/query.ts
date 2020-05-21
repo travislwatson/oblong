@@ -40,7 +40,7 @@ const createSelectorFromDependencies = <TDep, TOut>(
   return createSelector(dependentSelectors, remappedInner)
 }
 
-export const createQuery = <TDep>() => {
+export const query = <TDep>() => {
   let deps = {} as QueryDependencies<TDep>
 
   const instance: QueryBuilder<TDep> = {

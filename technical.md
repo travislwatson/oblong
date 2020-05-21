@@ -2,7 +2,7 @@
 
 ### React.memo usage
 
-Every component creaed with `O.createView` is wrapped in `React.memo`. The reason is due to the nature of applications developed with Oblong. Since Redux is used for state management, and React-Redux handles the connections, prop drilling is exceedingly rare, and view granularity and composition is very beneficial.
+Every component creaed with `O.view` is wrapped in `React.memo`. The reason is due to the nature of applications developed with Oblong. Since Redux is used for state management, and React-Redux handles the connections, prop drilling is exceedingly rare, and view granularity and composition is very beneficial.
 
 Updates triggered via state happen through `useSelector` hooks, which bypasses the overhead of memoization.
 
@@ -16,6 +16,6 @@ Of particular note is this snippet:
 
 While React can't assume universal memoization would be a net benefit, Oblong can due to its design encouraging many functional component boundaries without any props, or with very few.
 
-Currently the escape hatch is to not use `O.createView`. Maybe in the future, a `.noMemo()` or similar could be added for a higher quality escape hatch.
+Currently the escape hatch is to not use `O.view`. Maybe in the future, a `.noMemo()` or similar could be added for a higher quality escape hatch.
 
 Also, if a stress test benchmark is ever created to try with and without `React.memo`, this position can be changed from a principled one to a data driven one.

@@ -6,10 +6,6 @@ Proceed at your own peril.
 
 If you're curious about something, the answer might be in [FAQ](faq.md). If you want to look at some of the things that have steered the development of Oblong, check out [References](references.md). To look at the growing list of what needs to be done for the MVP, see [TODO](todo.md).
 
-# Release log
-
-- 0.1.0: A lot of refactor work on types. Feels like the "core four" pieces are getting pretty stable in their fundamental states. Swapped playground over to Typescripe to validate types. Type inference is working very well most of the time. Some generic guidance will be beneficial, especially for command arguments. Wasn't able to let command argument names be inferenced. Maybe something to fix in the future. Added deepFreeze too and put it behind production optimization guard.
-
 # Installation
 
 Install Oblong and dependencies from `npm i oblong react react-redux react-router-dom redux redux-devtools-extension reselect`.
@@ -47,9 +43,7 @@ State is anything you wish to store. It can be simple values like strings, numbe
 ```js
 import { O } from 'oblong'
 
-export const name = O.createState()
-  .withDefault('John Doe')
-  .as('user.profile.name')
+export const name = O.state().withDefault('John Doe').as('user.profile.name')
 ```
 
 So we're creating a piece of state which has a default of `'John Doe'`. But what's the `as` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `name = 'Jane Doe'`, then our state tree would look like:
@@ -64,7 +58,7 @@ So we're creating a piece of state which has a default of `'John Doe'`. But what
 }
 ```
 
-While highly recommended, both the default and the locator are optional. `O.createState().as()` will create a unique piece of state with a default value of `undefined`.
+While highly recommended, both the default and the locator are optional. `O.state().as()` will create a unique piece of state with a default value of `undefined`.
 
 State can be read and used inside of a command, query or view. It can be changed inside of a command or view.
 
@@ -76,7 +70,7 @@ Commands encapsulate all your application side effects. This is where all your i
 import { O } from 'oblong'
 import { newName, profile } from './profile'
 
-export const saveProfile = O.createCommand()
+export const saveProfile = O.command()
   .with({ newName, profile })
   .as(async (o) => {
     const response = await fetch('/profile', {
@@ -90,7 +84,7 @@ export const saveProfile = O.createCommand()
   })
 ```
 
-While optional, a command without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.createCommand().as()` is required to create a bare minimum no-op command.
+While optional, a command without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.command().as()` is required to create a bare minimum no-op command.
 
 Commands can depend on on other commands, and can use the results of queries and state.
 
@@ -102,18 +96,18 @@ Oblong is designed for normalized state storage, which mean queries to denormali
 import { O } from 'oblong'
 import { firstName, middleInitial, lastName } from './profile'
 
-const middleInitialWithDot = O.createQuery()
+const middleInitialWithDot = O.query()
   .with({ middleInitial })
   .as((o) => (o.middleInitial ? `${o.middleInitial}.` : ''))
 
-export const fullName = O.createQuery()
+export const fullName = O.query()
   .with({ firstName, middleInitialWithDot, lastName })
   .as((o) => `${o.firstName} ${o.middleInitialWithDot} ${o.lastName}`)
 ```
 
 A query can depend on state or other queries. Queries cannot depend on commands, and state cannot be changed inside queries.
 
-While optional, a query without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.createQuery().as()` is required to create a bare minimum no-op query that always returns `undefined`.
+While optional, a query without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.query().as()` is required to create a bare minimum no-op query that always returns `undefined`.
 
 ## View
 
@@ -127,7 +121,7 @@ Technically, views are Functional React Components, which means you have the ful
 import { O } from 'oblong'
 import { name, save } from './profile'
 
-export const EditProfile = O.createView()
+export const EditProfile = O.view()
   .with({ name, save })
   .as((o) => (
     <>

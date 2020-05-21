@@ -19,3 +19,4 @@ Most of these are critical of React, Redux, etc. Some disagree with Oblong's eth
 - [A Reddit user wants "proper DI"](https://www.reddit.com/r/webdev/comments/g6g0px/im_going_to_say_it_after_using_them_for_a_year_i/fo9rhyq/?context=1)
 - [A popular post about libraries vs frameworks](https://www.brandonsmith.ninja/blog/libraries-not-frameworks)
 - [Interesting state management library embracing hooks](https://recoiljs.org/)
+- ["100% FP doesn't work, 85% really does work"](https://www.johndcook.com/blog/2020/05/15/pretending-oop-never-happened/)

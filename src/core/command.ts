@@ -4,16 +4,15 @@ import { createCommandLoader } from '../loading/commandLoading'
 
 export interface CommandBuilder<TDep> {
   with: <TNewDep>(dependencies: Dependencies<TNewDep>) => CommandBuilder<TNewDep>
-  named: (name: string) => CommandBuilder<TDep>
   ignoreLoading: () => CommandBuilder<TDep>
   as: <TArgs extends any[], TOut>(
     inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
   ) => Command<TDep, TArgs, TOut>
 }
 
-export const createCommand = <TDep>() => {
+export const command = <TDep>(name?: string) => {
   let deps = {} as Dependencies<TDep>
-  let id = makeId()
+  name = name ?? makeId()
   let ignoreLoading = false
 
   const instance: CommandBuilder<TDep> = {
@@ -21,17 +20,13 @@ export const createCommand = <TDep>() => {
       deps = dependencies as any
       return (instance as unknown) as CommandBuilder<TNewDep>
     },
-    named: (name: string) => {
-      id = name
-      return instance
-    },
     ignoreLoading: () => {
       ignoreLoading = true
       return instance
     },
     as: <TArgs extends any[], TOut>(inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut) => {
       const dependencyKeys = Object.keys(deps)
-      const loaderInjectable = createCommandLoader().named(id)
+      const loaderInjectable = createCommandLoader().named(name)
       let storeCache
 
       const bound = (...args: TArgs) => {
@@ -49,7 +44,7 @@ export const createCommand = <TDep>() => {
 
         Object.defineProperties(boundDependencies, propertyDescriptors)
 
-        storeCache.dispatch({ type: `COMMAND ${id}`, payload: args })
+        storeCache.dispatch({ type: `${name}()`, payload: args })
         boundDependencies.args = args
 
         const output = inner(boundDependencies) as any
@@ -62,7 +57,7 @@ export const createCommand = <TDep>() => {
 
       return {
         inner,
-        id,
+        name,
         resolve: (store) => {
           storeCache = store
           return {

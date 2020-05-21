@@ -91,6 +91,7 @@ const equalityFns = {
 
 const builtinEqualityFns = Object.keys(equalityFns)
 
+// TODo change this to put the locator in the inital call createState(locator)
 let id = 0
 const createStateUnknown = <T>(internal: boolean) => {
   let defaultSelector = (state: any): T => undefined
@@ -122,7 +123,7 @@ const createStateUnknown = <T>(internal: boolean) => {
     as: (locator: string = `?-${id++}`): State<T> => {
       const selector = makeSelector(defaultSelector, locator, internal)
       const actionCreator = (payload: T) => ({
-        type: `SET ${locator}`,
+        type: `${locator}=`,
         meta: { [internal ? 'isOblongInternal' : 'isOblong']: true },
         payload,
       })
@@ -149,4 +150,4 @@ const createStateUnknown = <T>(internal: boolean) => {
 }
 
 export const createInternalState = () => createStateUnknown(true)
-export const createState = () => createStateUnknown(false)
+export const state = () => createStateUnknown(false)
