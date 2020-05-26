@@ -44,7 +44,7 @@ export const command = <TDep>(name?: string) => {
 
         Object.defineProperties(boundDependencies, propertyDescriptors)
 
-        storeCache.dispatch({ type: `${name}()`, payload: args })
+        storeCache.dispatch({ type: `${name}()` })
         boundDependencies.args = args
 
         const output = inner(boundDependencies) as any

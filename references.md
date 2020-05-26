@@ -4,6 +4,7 @@ Many things inspired Oblong, not the least of which is a large amount of applica
 
 Most of these are critical of React, Redux, etc. Some disagree with Oblong's ethos, but still has valuable insight.
 
+- [Fantastic discussion on async](https://blog.isquaredsoftware.com/2017/01/idiomatic-redux-thoughts-on-thunks-sagas-abstraction-and-reusability/)
 - [Redux is half of a pattern](https://dev.to/davidkpiano/redux-is-half-of-a-pattern-1-2-1hd7)
 - [A Reddit user trying to cut down on boilerplate](https://www.reddit.com/r/reactjs/comments/eyhadh/redux_thunk_pending_success_failure_pattern_for/)
 - [How UI-driven State Increases Accidental Complexity](https://evgenii.info/ui-driven-state/)

@@ -1,0 +1,50 @@
+# Features
+
+This is effectively a ToDo list for API documentation
+
+- Bootstrapping
+  - `<OblongApp>` for configuring everything
+- State
+  - `O.state('user.name')` For Redux state tree organization
+  - `O.state().as(false)` To specify default value
+  - `O.state().with({ name }).as(o => o.name.length)` Default values can be calculated like queries
+- Commands
+  - `O.command('doIt')` For event emission
+  - `O.command().with({ name })` Can have dependencies
+  - `O.command().as(() => { ... })` Any function as implementation
+- Queries
+  - `O.query('firstName')` For... debugging? Not used yet
+  - `O.query().with({ name })` Can only depend on Queryables
+  - `O.query().as(() => true)` Implementation must be pure synchronous function
+- Views
+  - `O.view('Name')` For DevTools
+  - `O.view().as(function Something() {})` Alternative for devtools
+  - `O.view().with({ name })` Can have dependencies
+  - `O.view().as(() => <>Hello world</>)` Functional components as implementations
+  - `O.view().with({ name }).if(o => o.name)` Conditional rendering
+- Quality of Life
+  - `O.` for accessing four core building blocks
+  - Re-export React to avoid import
+  - `defineProperty` behavior to keep values live and allow state mutation via assignment
+  - Templates for `create-react-app`
+- Performance
+  - Views are wrapped in `React.memo` to avoid cascading re-renders
+  - Object freezing only runs in debug
+  - `setEquality` on state to avoid unnecessary state changes
+  - Queries all map to `reselect` selectors
+- Code Quality
+  - State values and query results are frozen to avoid accidental mutation
+  - Queries and Commands don't allow accidentally setting them
+- Loading
+  - Async commands are watched for global loading status
+  - `isLoading` global loading status
+  - `createLoader` for more targeted async monitoring
+  - `.ignoreLoading()` on commands to prevent default behavior
+- Interop
+  - `fromSelector` to allow plain selectors to be used as a dependency
+  - `fromActionCreator` to allow plain action creators to be used as a dependency
+  - `portableReducer` to allow either reducer creation or third party redux library integration
+- Routing
+  - `currentLocation` query for current route
+- Miscellaneous
+  - `hydrate` to restore a serialized state

@@ -77,9 +77,8 @@ const makeSelector = <TValue>(
 type EqualityFn<T> = 'exact' | 'shallow' | 'never' | ((oldValue: T, newValue: T) => boolean)
 
 export interface StateBuilder<T> {
-  withDefault: <TNew>(defaultValue: TNew | Queryable<TNew>) => StateBuilder<TNew>
   setEquality: (equality: EqualityFn<T>) => StateBuilder<T>
-  as: (locator?: string) => State<T>
+  as: <TNew = T>(defaultValue: TNew | Queryable<TNew>) => State<TNew>
 }
 
 const equalityFns = {
@@ -93,21 +92,10 @@ const builtinEqualityFns = Object.keys(equalityFns)
 
 // TODo change this to put the locator in the inital call createState(locator)
 let id = 0
-const createStateUnknown = <T>(internal: boolean) => {
-  let defaultSelector = (state: any): T => undefined
-  let equalityFn: (a: T, b: T) => boolean = equalityFns.exact
+const createStateUnknown = <T>(internal: boolean, name: string = `?-${id++}`) => {
+  let equalityFn: (a: any, b: any) => boolean = equalityFns.exact
 
   const instance: StateBuilder<T> = {
-    withDefault: <TNew>(defaultValue: TNew | Queryable<TNew>) => {
-      if (defaultValue?.[isQueryable]) {
-        defaultSelector = (defaultValue as Queryable<TNew>).selector as any
-      } else {
-        if (process.env.NODE_ENV !== 'production') deepFreeze(defaultValue)
-        defaultSelector = (() => defaultValue) as any
-      }
-
-      return (instance as unknown) as StateBuilder<TNew>
-    },
     setEquality: (equality) => {
       if (typeof equality === 'string' && builtinEqualityFns.indexOf(equality) > -1) {
         equalityFn = equalityFns[equality]
@@ -120,13 +108,21 @@ const createStateUnknown = <T>(internal: boolean) => {
       }
       return instance
     },
-    as: (locator: string = `?-${id++}`): State<T> => {
-      const selector = makeSelector(defaultSelector, locator, internal)
-      const actionCreator = (payload: T) => ({
-        type: `${locator}=`,
+    as: <TNew = T>(defaultValue: TNew | Queryable<TNew>) => {
+      let defaultSelector: (state: any) => TNew
+      if (defaultValue?.[isQueryable]) {
+        defaultSelector = (defaultValue as Queryable<TNew>).selector as any
+      } else {
+        if (process.env.NODE_ENV !== 'production') deepFreeze(defaultValue)
+        defaultSelector = (() => defaultValue) as any
+      }
+      const actionCreator = (payload: TNew) => ({
+        type: `${name}=`,
         meta: { [internal ? 'isOblongInternal' : 'isOblong']: true },
         payload,
       })
+
+      const selector = makeSelector(defaultSelector, name, internal)
 
       return {
         [isQueryable]: true,
@@ -134,7 +130,7 @@ const createStateUnknown = <T>(internal: boolean) => {
         actionCreator,
         resolve: (store) => ({
           get: () => selector(store.getState()),
-          set: (newValue) => {
+          set: (newValue: TNew) => {
             if (equalityFn(selector(store.getState()), newValue)) return
 
             if (process.env.NODE_ENV !== 'production') deepFreeze(newValue)
@@ -149,5 +145,5 @@ const createStateUnknown = <T>(internal: boolean) => {
   return instance
 }
 
-export const createInternalState = () => createStateUnknown(true)
-export const state = () => createStateUnknown(false)
+export const createInternalState = (name: string) => createStateUnknown(true, name)
+export const state = (name?: string) => createStateUnknown(false, name)

@@ -1,7 +1,6 @@
 import * as React from 'react'
-import { Link } from 'react-router-dom'
 // Re-exporting common dependencies
-export { React, Link }
+export { React }
 
 // Bootstrap
 export { OblongApp } from './bootstrap/OblongApp'

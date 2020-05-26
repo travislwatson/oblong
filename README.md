@@ -29,24 +29,30 @@ Congratulations, you now have a fully configured Oblong application!
 
 Oblong revolves around four fundamental atomic building blocks:
 
-1. **State** - where you store everything in a normalized way
-2. **Command** - how you handle user input and interact with the outside world (side effects)
-3. **Query** - transforms your normalized state into more useful representations
-4. **View** - renders all your components and interacts with the user
+1. `O.state()` - where you store everything in a normalized way
+2. `O.command()` - how you handle user input and interact with the outside world (side effects)
+3. `O.query()` - transforms your normalized state into more useful representations
+4. `O.view()` - renders all your components and interacts with the user
 
-Hopefully the name of each of these gives you a clue to their purpose. Let's explore an example of each of them.
+For each of those blocks, there are three common methods to their definitions:
+
+1. `O.state('name')`, etc. - Each definition accepts a string name as its sole argument
+2. `.with({ ... })` - When dependencies are needed, they are specified here
+3. `.as(...)` - Where all the business happens, this is where you write _your_ code
+
+See below for how to combine these four blocks with each common method
 
 ## State
 
-State is anything you wish to store. It can be simple values like strings, numbers, or booleans. It can be complex objects or arrays.
+State is anything you wish to store, as long as it is serializable. It can be simple values like strings, numbers, or booleans. It can be complex objects or arrays.
 
 ```js
 import { O } from 'oblong'
 
-export const name = O.state().withDefault('John Doe').as('user.profile.name')
+export const name = O.state('user.profile.name').as('John Doe')
 ```
 
-So we're creating a piece of state which has a default of `'John Doe'`. But what's the `as` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `name = 'Jane Doe'`, then our state tree would look like:
+So we're creating a piece of state which has a default of `'John Doe'`. But what's the `user.profile.name` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `name = 'Jane Doe'`, then our state tree would look like:
 
 ```json
 {
@@ -58,19 +64,21 @@ So we're creating a piece of state which has a default of `'John Doe'`. But what
 }
 ```
 
-While highly recommended, both the default and the locator are optional. `O.state().as()` will create a unique piece of state with a default value of `undefined`.
+While highly recommended, both the default and the locator are optional. `O.state().as()` will create a unique piece of state in an unorganized area with a default value of `undefined`.
 
 State can be read and used inside of a command, query or view. It can be changed inside of a command or view.
 
+There's no `.with({ ... })` in this example. For most simple state storage, you will not need dependencies. For advanced state usage, see TODO.
+
 ## Command
 
-Commands encapsulate all your application side effects. This is where all your imperative code should live.
+Commands encapsulate all your application side effects. This is where your code goes that "does" something.
 
 ```js
 import { O } from 'oblong'
 import { newName, profile } from './profile'
 
-export const saveProfile = O.command()
+export const saveProfile = O.command('saveProfile')
   .with({ newName, profile })
   .as(async (o) => {
     const response = await fetch('/profile', {
@@ -87,6 +95,8 @@ export const saveProfile = O.command()
 While optional, a command without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.command().as()` is required to create a bare minimum no-op command.
 
 Commands can depend on on other commands, and can use the results of queries and state.
+
+The name provided (in this case `saveProfile`) is used for event generation. This allows you to view your command calls in the Redux DevTools and have inverted command dependencies (instead of commandA calling commandB, commandB can simply listen for a call to commandA).
 
 ## Query
 
@@ -109,19 +119,21 @@ A query can depend on state or other queries. Queries cannot depend on commands,
 
 While optional, a query without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.query().as()` is required to create a bare minimum no-op query that always returns `undefined`.
 
+Queries can be named to assist with debugging.
+
 ## View
 
 Last, but far from least, views wrap all your hard work creating state, commands, and queries into a neat package for your user.
 
 Views can depend on any combination of commands, queries, and state. State can be set inside views, but you might find it more manageable to prefer commands for your state assignments.
 
-Technically, views are Functional React Components, which means you have the full power of hooks available.
+Once the dependency injection is accounted for, views are nearly identical to Functional React Components. The most important thing this means is that you have the full power of hooks available.
 
 ```js
 import { O } from 'oblong'
 import { name, save } from './profile'
 
-export const EditProfile = O.view()
+export const EditProfile = O.view('EditProfile')
   .with({ name, save })
   .as((o) => (
     <>
@@ -141,3 +153,5 @@ export const EditProfile = O.view()
     </>
   ))
 ```
+
+The name provided is used in the React DevTools.

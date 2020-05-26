@@ -2,7 +2,6 @@ import {
   React,
   O,
   currentLocation,
-  Link,
   isLoading,
   fromSelector,
   createLoader,
@@ -10,6 +9,7 @@ import {
   portableReducer,
   hydrate,
 } from 'oblong'
+import { Link } from 'react-router-dom'
 import { testHydrateState } from './testHydrateState'
 
 const twoSeconds = () =>
@@ -25,12 +25,9 @@ const defaultAge = O.query()
   .with({ currentLocation })
   .as((o) => o.currentLocation.pathname.length)
 
-const age = O.state().withDefault<number>(defaultAge).as('user.age')
+const age = O.state('user.age').as<number>(defaultAge)
 
-const profile = O.state()
-  .withDefault({ name: 'John Doe' })
-  .setEquality('shallow')
-  .as('user.profile')
+const profile = O.state('user.profile').setEquality('shallow').as({ name: 'John Doe' })
 
 const firstName = O.query()
   .with({ profile })
@@ -205,20 +202,22 @@ const Counter = O.view('Counter')
   .with({ counter })
   .as((o) => <div>Counter: {o.counter}</div>)
 
-const Hydrate = O.view('Hydrate')
+const Hydrate = O.view()
   .with({ hydrate })
-  .as((o) => (
-    <div>
-      Hydrate:
-      <button
-        onClick={() => {
-          o.hydrate(testHydrateState)
-        }}
-      >
-        Do it
-      </button>
-    </div>
-  ))
+  .as(function Hydrate(o) {
+    return (
+      <div>
+        Hydrate:
+        <button
+          onClick={() => {
+            o.hydrate(testHydrateState)
+          }}
+        >
+          Do it
+        </button>
+      </div>
+    )
+  })
 
 export const App = () => (
   <>

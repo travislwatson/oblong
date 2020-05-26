@@ -7,14 +7,13 @@ export interface OblongLocation {
   hash: string
 }
 
-const storedLocation = createInternalState()
-  .withDefault<OblongLocation>({
+const storedLocation = createInternalState('routing.location')
+  .setEquality('shallow')
+  .as<OblongLocation>({
     pathname: '',
     search: '',
     hash: '',
   })
-  .setEquality('shallow')
-  .as('routing.location')
 
 export const updateLocation = O.command('oblong.updateLocation')
   .with({ storedLocation })

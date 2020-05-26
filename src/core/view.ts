@@ -23,6 +23,10 @@ export const view = <TDep>(name?: string) => {
       return instance
     },
     as: <TProps = {}>(inner: React.FC<TDep & TProps>) => {
+      if (name && !inner.name) {
+        inner.displayName = name
+      }
+
       const dependencyKeys = Object.keys(deps)
       const queryableDependencies = dependencyKeys
         .map((i) => deps[i])
@@ -38,28 +42,30 @@ export const view = <TDep>(name?: string) => {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         queryableDependencies.forEach((i) => useSelector(i))
 
-        const boundDependencies = {} as TDep
+        const o = {} as TDep
 
         const propertyDescriptors = dependencyKeys.reduce(
           (out, i) => ({
             ...out,
-            [i]: (deps[i] as Injectable<any>).resolve(store),
+            [i]: {
+              enumerable: true,
+              ...(deps[i] as Injectable<any>).resolve(store),
+            },
           }),
           {}
         )
 
-        Object.defineProperties(boundDependencies, propertyDescriptors)
-
-        Object.assign(boundDependencies, props)
+        Object.defineProperties(o, propertyDescriptors)
+        Object.assign(o, props)
 
         // TODO think about this. We can't conditionally call inner because if
         // it has hooks, then conditionally rendering changes hook execution
-        const innerOutput = inner(boundDependencies as TDep & TProps)
+        const innerOutput = inner(o as TDep & TProps)
 
-        return renderCondition(boundDependencies) ? innerOutput : null
+        return renderCondition(o) ? innerOutput : null
       }
 
-      unmemoized.displayName = name ?? 'UnnamedView'
+      unmemoized.displayName = name || inner.name ? `${name || inner.name}View` : 'UnnamedView'
 
       const output = (React.memo(unmemoized) as unknown) as View<TDep, TProps>
 

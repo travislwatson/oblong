@@ -6,8 +6,7 @@ import { makeId } from '../utils/makeId'
 const LOADER_DELAY = 50
 
 export const createLoaderFactory = (location: string) => {
-  const createLoadingState = (name: string) =>
-    createInternalState().withDefault<number>(0).as(`${location}.${name}`)
+  const createLoadingState = (name: string) => createInternalState(`${location}.${name}`).as(0)
 
   return (): Loader => {
     let id = makeId()
