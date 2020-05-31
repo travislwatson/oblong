@@ -1,5 +1,5 @@
 import { Reducer } from 'redux'
-import { PortableReducer, isQueryable, OblongStore } from '../core/types'
+import { PortableReducer, isQueryable, OblongStore } from '../foundation/types'
 
 const bannedLocations = ['oblong', 'app']
 export const portableReducer = <TState>(

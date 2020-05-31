@@ -1,12 +1,12 @@
-import { createInternalState } from '../core/state'
-import { Loader } from '../core/types'
+import { state } from '../core/state'
+import { Loader } from '../foundation/types'
 import { makeId } from '../utils/makeId'
 
 // TODO make this configurable
 const LOADER_DELAY = 50
 
 export const createLoaderFactory = (location: string) => {
-  const createLoadingState = (name: string) => createInternalState(`${location}.${name}`).as(0)
+  const createLoadingState = (name: string) => state(`oblong.loading.${location}.${name}`).as(0)
 
   return (): Loader => {
     let id = makeId()

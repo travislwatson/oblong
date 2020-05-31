@@ -1,4 +1,4 @@
-import { Command, Dependencies, CommandArgs, Injectable } from './types'
+import { Command, Dependencies, CommandArgs, Injectable } from '../foundation/types'
 import { makeId } from '../utils/makeId'
 import { createCommandLoader } from '../loading/commandLoading'
 

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useHistory } from 'react-router-dom'
 import { useStore } from 'react-redux'
-import { OblongStore } from '../core/types'
+import { OblongStore } from '../foundation/types'
 
 export const HistoryAttacher = () => {
   const history = useHistory()

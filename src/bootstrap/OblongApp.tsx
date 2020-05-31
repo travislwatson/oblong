@@ -4,7 +4,7 @@ import { applyMiddleware, createStore, Reducer } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
 import { BrowserRouter, BrowserRouterProps } from 'react-router-dom'
 import { makeReducer } from './makeReducer'
-import { OblongStore } from '../core/types'
+import { OblongStore } from '../foundation/types'
 import { RouteWatcher } from '../routing/RouteWatcher'
 import { HistoryAttacher } from '../routing/HistoryAttacher'
 

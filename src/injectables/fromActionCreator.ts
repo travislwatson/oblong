@@ -1,4 +1,4 @@
-import { Injectable } from '../core/types'
+import { Injectable } from '../foundation/types'
 
 export const fromActionCreator = <TArgs extends any[]>(
   actionCreator: (...args: TArgs) => any

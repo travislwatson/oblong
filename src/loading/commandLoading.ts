@@ -11,4 +11,4 @@ export const isLoading = fromSelector(
   )
 )
 
-export const createCommandLoader = createLoaderFactory(`loading.command`)
+export const createCommandLoader = createLoaderFactory(`command`)

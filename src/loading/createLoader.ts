@@ -1,3 +1,3 @@
 import { createLoaderFactory } from './createLoaderFactory'
 
-export const createLoader = createLoaderFactory(`loading.named`)
+export const createLoader = createLoaderFactory(`named`)

@@ -1,5 +1,5 @@
 import { createSelector, Selector } from 'reselect'
-import { Query, QueryDependencies, isQueryable, Queryable, OblongState } from './types'
+import { Query, QueryDependencies, isQueryable, Queryable, OblongState } from '../foundation/types'
 import { deepFreeze } from '../utils/deepFreeze'
 import { fromSelector } from '../injectables/fromSelector'
 
