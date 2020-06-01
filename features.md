@@ -48,3 +48,4 @@ This is effectively a ToDo list for API documentation
   - `currentLocation` query for current route
 - Miscellaneous
   - `hydrate` to restore a serialized state
+  - `rootState` for grabbing the entire state tree, useful in combination with `hydrate`

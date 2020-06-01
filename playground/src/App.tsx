@@ -8,9 +8,9 @@ import {
   fromActionCreator,
   portableReducer,
   hydrate,
+  rootState,
 } from 'oblong'
 import { Link } from 'react-router-dom'
-import { testHydrateState } from './testHydrateState'
 
 const twoSeconds = () =>
   new Promise((resolve) => {
@@ -203,19 +203,27 @@ const Counter = O.view('Counter')
   .with({ counter })
   .as((o) => <div>Counter: {o.counter}</div>)
 
-const Hydrate = O.view()
+const hydrateSet = O.command('hydrateSet')
+  .with({ rootState })
+  .as((o) => {
+    sessionStorage.setItem('oblong.playground', JSON.stringify(o.rootState))
+  })
+const hydrateGet = O.command('hydrateGet')
   .with({ hydrate })
+  .as((o) => {
+    const stored = sessionStorage.getItem('oblong.playground')
+    if (stored) {
+      o.hydrate(JSON.parse(stored))
+    }
+  })
+const Hydrate = O.view()
+  .with({ hydrateGet, hydrateSet })
   .as(function Hydrate(o) {
     return (
       <div>
         Hydrate:
-        <button
-          onClick={() => {
-            o.hydrate(testHydrateState)
-          }}
-        >
-          Do it
-        </button>
+        <button onClick={o.hydrateSet}>Set</button>
+        <button onClick={o.hydrateGet}>Get</button>
       </div>
     )
   })

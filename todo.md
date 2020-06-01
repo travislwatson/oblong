@@ -4,7 +4,6 @@ Done items have now been moved to [features.md](features.md).
 
 ## Ready to Start
 
-- Change state syntax to inline the queryable default
 - `rootState` or similar selector for getting the entire state (for coupling with `hydrate`)
 
 ## Planned Features
