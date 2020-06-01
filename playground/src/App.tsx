@@ -131,6 +131,7 @@ const doBadSlow = O.command('doBadSlow').as(async () => {
 })
 
 const withoutLoader = O.command('withoutLoader')
+  .with({})
   .ignoreLoading()
   .as(async () => {
     await twoSeconds()
