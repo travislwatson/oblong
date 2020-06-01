@@ -57,6 +57,14 @@ type ResolvedLoader = {
 
 export type Loader = Injectable<ResolvedLoader> & { named: (name: string) => Loader }
 
+export type ErrorSink = Injectable<{
+  errors: string[]
+  logError: (error: string | string[]) => void
+  clear: () => void
+  dismiss: (error: string) => void
+}> &
+  Queryable<string[]>
+
 export type PortableReducer<TState = any> = Injectable<TState> &
   Queryable<TState> & {
     location: string

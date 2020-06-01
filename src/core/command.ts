@@ -1,14 +1,17 @@
 import { Command, Dependencies, CommandArgs, Injectable } from '../foundation/types'
 import { makeId } from '../utils/makeId'
 import { createCommandLoader } from '../loading/commandLoading'
+import { globalErrorSink } from '../errors/globalErrorSink'
 
 const makeCommand = <TDep, TArgs extends unknown[], TOut>(
   name: string,
   deps: Dependencies<TDep>,
   ignoreLoading: boolean,
+  ignoreErrors: boolean,
   inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
 ): Command<TDep, TArgs, TOut> => {
   deps = deps ?? ({} as any)
+  name = name ?? `?${makeId()}`
 
   const dependencyKeys = Object.keys(deps)
   const loaderInjectable = createCommandLoader().named(name)
@@ -32,12 +35,33 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
     storeCache.dispatch({ type: `${name}()` })
     boundDependencies.args = args
 
-    const output = inner(boundDependencies) as any
-    if (!ignoreLoading) {
-      loader.get().track(async () => await Promise.resolve(output))
-    }
+    try {
+      const output = inner(boundDependencies) as any
 
-    return output
+      if (!ignoreErrors && output?.catch) {
+        output.catch((error) => {
+          if (Array.isArray(error) || typeof error === 'string') {
+            globalErrorSink.resolve(storeCache).get().logError(error)
+          } else {
+            globalErrorSink.resolve(storeCache).get().logError('An unknown error occurred.')
+            console?.error?.(error)
+          }
+        })
+      }
+
+      if (!ignoreLoading) {
+        loader.get().track(async () => await Promise.resolve(output))
+      }
+
+      return output
+    } catch (e) {
+      if (ignoreErrors) {
+        throw e
+      } else {
+        console?.error?.(e)
+        globalErrorSink.resolve(storeCache).get().logError('An unknown error occurred.')
+      }
+    }
   }
 
   return {
@@ -64,7 +88,7 @@ export class CommandBuilder {
   }
 
   as<TArgs extends any[], TOut>(inner: (o: CommandArgs<{}, TArgs>) => TOut) {
-    return makeCommand<{}, TArgs, TOut>(this.name, {}, false, inner)
+    return makeCommand<{}, TArgs, TOut>(this.name, {}, false, false, inner)
   }
 }
 
@@ -72,6 +96,7 @@ export class CommandBuilderWithDependencies<TDep> {
   private name: string
   private dependencies: Dependencies<TDep>
   private isIgnoringLoading: boolean
+  private isIgnoringErrors: boolean
 
   constructor(name: string, dependencies: Dependencies<TDep>) {
     this.name = name
@@ -83,14 +108,20 @@ export class CommandBuilderWithDependencies<TDep> {
     return this as Omit<this, 'ignoreLoading'>
   }
 
+  ignoreErrors() {
+    this.isIgnoringErrors = true
+    return this as Omit<this, 'ignoreErrors'>
+  }
+
   as<TArgs extends any[], TOut>(inner: (o: CommandArgs<TDep, TArgs>) => TOut) {
     return makeCommand<TDep, TArgs, TOut>(
       this.name,
       this.dependencies,
       this.isIgnoringLoading,
+      this.isIgnoringErrors,
       inner
     )
   }
 }
 
-export const command = (name: string) => new CommandBuilder(name)
+export const command = (name?: string) => new CommandBuilder(name)

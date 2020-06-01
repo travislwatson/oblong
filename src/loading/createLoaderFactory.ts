@@ -39,6 +39,7 @@ export const createLoaderFactory = (location: string) => {
             const stopLoader = startLoader(store)
             try {
               return await asyncAction()
+            } catch (e) {
             } finally {
               stopLoader()
             }

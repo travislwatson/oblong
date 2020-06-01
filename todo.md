@@ -4,11 +4,8 @@ Done items have now been moved to [features.md](features.md).
 
 ## Ready to Start
 
-- `rootState` or similar selector for getting the entire state (for coupling with `hydrate`)
-
 ## Planned Features
 
-- Error tracking using throw (catch promises, and if the error was a default type, re-throw it so React error boundaries can work properly. Also need an OblongError type for state-based errors. Also maybe something like .onError for automatic error boundary creation)
 - Events + Emits + Subscription
 - Commands should auto-emit 3 events: (), .then, and .catch. Only async commands will emit .then and .catch
 - Routing events
@@ -23,6 +20,7 @@ Done items have now been moved to [features.md](features.md).
 - Allow specifiying a .persist() or similar on state as an alternate to specific .get/.set
 - Allow using DI for passthru simple dependency decoupling (just helps with mocking unit tests)
 - Provide a unit test helper for everything special (for instance the property creation get and set stuff and maybe the array .push whatknot)
+- Support function syntax for getting name for commands like views
 
 ## Improve Code Quality
 
@@ -33,6 +31,7 @@ Done items have now been moved to [features.md](features.md).
 - Related to prior point, investigate way of doing the builder syntax where we use publicly available properties behind symbol names as a way to have private state without relying on closure. This might make the builders more memory efficient
 - Look into reselect overloads to see if there's some way to support the object syntax natively to avoid all the array reshuffling I'm doing now.
 - Improve debugging in queries, perhaps computation logging or debug message tracing, maybe a catch+re-throw for exceptions
+- Can we create an error boundary helper?
 
 ## Investigate
 

@@ -9,6 +9,8 @@ import {
   portableReducer,
   hydrate,
   rootState,
+  globalErrorSink,
+  createErrorSink,
 } from 'oblong'
 import { Link } from 'react-router-dom'
 
@@ -228,6 +230,65 @@ const Hydrate = O.view()
     )
   })
 
+const failRaw = O.command('failRaw')
+  .with({})
+  .as(() => {
+    throw new TypeError('Wow, such error. Much fail.')
+  })
+const fooSink = createErrorSink('foo')
+const failAsync = O.command('failAsync').as(async () => {
+  throw 'failAsync single'
+})
+const failAsyncMultiple = O.command('failAsyncMultiple').as(async () => {
+  throw ['failAsync multi', 'failAsync ple']
+})
+const failNatural = O.command('failNatural').as(async () => {
+  throw new TypeError('oh wow this is bad')
+})
+const Errors = O.view('Errors')
+  .with({ failRaw, globalErrorSink, fooSink, failAsync, failAsyncMultiple, failNatural })
+  .as((o) => (
+    <>
+      <div>
+        <button onClick={o.failRaw}>failRaw</button>
+        <button onClick={() => o.globalErrorSink.logError('Special')}>log Special</button>
+        <button onClick={() => o.globalErrorSink.logError(['Special', 'Another Special'])}>
+          log Special[]
+        </button>
+        <button onClick={() => o.fooSink.logError(`${Math.random()}`)}>Foo</button>
+        <button
+          onClick={() => {
+            o.fooSink.clear()
+            o.globalErrorSink.clear()
+          }}
+        >
+          Clear all
+        </button>
+        <button onClick={o.failAsync}>failAsync</button>
+        <button onClick={o.failAsyncMultiple}>failAsyncMultiple</button>
+        <button onClick={o.failNatural}>failNatural</button>
+      </div>
+      <ul>
+        {o.globalErrorSink.errors.map((i, index) => (
+          <li key={index}>
+            {i}
+            <button onClick={() => o.globalErrorSink.dismiss(i)}>X</button>
+          </li>
+        ))}
+      </ul>
+      <h5>Foo:</h5>
+
+      <ul>
+        {o.fooSink.errors.map((i, index) => (
+          <li key={index}>
+            {i}
+            <button onClick={() => o.fooSink.dismiss(i)}>X</button>
+          </li>
+        ))}
+      </ul>
+    </>
+  ))
+
 export const App = () => (
   <>
     <h1>Playground</h1>
@@ -239,5 +300,6 @@ export const App = () => (
     <DoWierdTest />
     <Counter />
     <Hydrate />
+    <Errors />
   </>
 )

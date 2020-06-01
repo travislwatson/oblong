@@ -49,3 +49,6 @@ This is effectively a ToDo list for API documentation
 - Miscellaneous
   - `hydrate` to restore a serialized state
   - `rootState` for grabbing the entire state tree, useful in combination with `hydrate`
+- Error handling
+  - Commands have error tracking built in for the `globalErrorSink`
+  - Custom error sinks can be created using `createErrorSink`
