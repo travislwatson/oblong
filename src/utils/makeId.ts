@@ -3,7 +3,7 @@ const urlAlphabet = 'ModuleSymbhasOwnPr-0123456789ABCDEFGHNRVfgctiUvz_KqYTJkLxpZ
 
 const used = {}
 
-export const makeId = () => {
+export const makeId = (): string => {
   let id = ''
   // A compact alternative for `for (var i = 0; i < step; i++)`.
   let i = 21

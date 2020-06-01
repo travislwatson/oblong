@@ -3,70 +3,70 @@ import { shallowEqual } from 'react-redux'
 import { State, isQueryable, Queryable } from '../foundation/types'
 import { deepFreeze } from '../utils/deepFreeze'
 import { makeLocatorSelector } from '../foundation/makeLocatorSelector'
+import { makeLocatorActionCreator } from '../foundation/makeLocatorActionCreator'
 
-type EqualityFn<T> = 'exact' | 'shallow' | 'never' | ((oldValue: T, newValue: T) => boolean)
-
-export interface StateBuilder<T> {
-  setEquality: (equality: EqualityFn<T>) => StateBuilder<T>
-  as: <TNew = T>(defaultValue: TNew | Queryable<TNew>) => State<TNew>
-}
-
+type EqualityChecker<T> = (from: T, to: T) => boolean
 const equalityFns = {
-  exact: (a, b) => a === b,
-  never: () => false,
-  shallow: shallowEqual,
+  exact: ((a, b) => a === b) as EqualityChecker<any>,
+  never: (() => false) as EqualityChecker<any>,
+  shallow: shallowEqual as EqualityChecker<any>,
   // TODO maybe support deep?
 }
+type EqualityFn<T> = keyof typeof equalityFns | EqualityChecker<T>
 
-const builtinEqualityFns = Object.keys(equalityFns)
+type DefaultValue<T> = T | Queryable<T>
 
-// TODo change this to put the locator in the inital call createState(locator)
 let id = 0
-export const state = <T>(name: string = `~${id++}`) => {
-  let equalityFn: (a: any, b: any) => boolean = equalityFns.exact
+const makeState = <T>(
+  locator: string = `~${id++}`,
+  equality: EqualityFn<T>,
+  defaultValue: DefaultValue<T>
+): State<T> => {
+  const equalityFn = (typeof equality === 'function'
+    ? equality
+    : equalityFns[equality] ?? equalityFns.exact) as EqualityChecker<T>
 
-  const instance: StateBuilder<T> = {
-    setEquality: (equality) => {
-      if (typeof equality === 'string' && builtinEqualityFns.indexOf(equality) > -1) {
-        equalityFn = equalityFns[equality]
-      } else if (typeof equality === 'function') {
-        equalityFn = equality
-      } else {
-        throw new Error(
-          `Equality must either be a function or one of: ${builtinEqualityFns.join(', ')}`
-        )
-      }
-      return instance
-    },
-    as: <TNew = T>(defaultValue: TNew | Queryable<TNew>) => {
-      const actionCreator = (payload: TNew) => ({
-        type: `${name}=`,
-        meta: { oblong: { isSet: true, locator: name } },
-        payload,
-      })
+  const actionCreator = makeLocatorActionCreator<T>(locator)
 
-      const selector = makeLocatorSelector(
-        name,
-        defaultValue?.[isQueryable] ? (defaultValue as Queryable<TNew>).selector : defaultValue
-      ) as Selector<any, TNew>
+  const selector = makeLocatorSelector(
+    locator,
+    (defaultValue as Queryable<T>)?.selector ?? defaultValue
+  ) as Selector<any, T>
 
-      return {
-        [isQueryable]: true,
-        selector,
-        actionCreator,
-        resolve: (store) => ({
-          get: () => selector(store.getState()),
-          set: (newValue: TNew) => {
-            if (equalityFn(selector(store.getState()), newValue)) return
+  return {
+    [isQueryable]: true,
+    selector,
+    actionCreator,
+    resolve: (store) => ({
+      get: () => selector(store.getState()),
+      set: (newValue: T) => {
+        if (equalityFn(selector(store.getState()), newValue)) return
 
-            if (process.env.NODE_ENV !== 'production') deepFreeze(newValue)
+        if (process.env.NODE_ENV !== 'production') deepFreeze(newValue)
 
-            store.dispatch(actionCreator(newValue))
-          },
-        }),
-      }
-    },
+        store.dispatch(actionCreator(newValue))
+      },
+    }),
+  }
+}
+
+export class StateBuilder<TState> {
+  private equalityFn: EqualityFn<unknown>
+  private locator: string
+
+  constructor(locator: string) {
+    this.locator = locator
   }
 
-  return instance
+  setEquality(newEqualityFn: EqualityFn<TState>) {
+    this.equalityFn = newEqualityFn
+
+    return this as Omit<this, 'setEquality'>
+  }
+
+  as<TDefault = TState>(defaultValue: TDefault | Queryable<TDefault>) {
+    return makeState<TDefault>(this.locator, this.equalityFn, defaultValue as any)
+  }
 }
+
+export const state = <T>(locator?: string) => new StateBuilder<T>(locator)

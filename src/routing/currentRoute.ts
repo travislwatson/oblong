@@ -7,7 +7,7 @@ export interface OblongLocation {
   hash: string
 }
 
-const storedLocation = state('oblong.routing.location').setEquality('shallow').as<OblongLocation>({
+const storedLocation = state<OblongLocation>('oblong.routing.location').setEquality('shallow').as({
   pathname: '',
   search: '',
   hash: '',
