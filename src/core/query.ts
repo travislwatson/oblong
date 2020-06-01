@@ -1,28 +1,18 @@
-import { createSelector, Selector } from 'reselect'
-import { Query, QueryDependencies, isQueryable, Queryable, OblongState } from '../foundation/types'
+import { createSelector } from 'reselect'
+import { Query, QueryDependencies, isQueryable, Queryable } from '../foundation/types'
 import { deepFreeze } from '../utils/deepFreeze'
 import { fromSelector } from '../injectables/fromSelector'
 
-declare var process: {
-  env: {
-    NODE_ENV: string
-  }
-}
-
-export interface QueryBuilder<TDep> {
-  with: <TNewDep>(dependencies: QueryDependencies<TNewDep>) => QueryBuilder<TNewDep>
-  as: <TOut>(inner: (dependencies: TDep) => TOut) => Query<TDep, TOut>
-}
-
-const createSelectorFromDependencies = <TDep, TOut>(
-  inner: (dependencies: TDep) => TOut,
-  dependencies: QueryDependencies<TDep>
-): Selector<OblongState, TOut> => {
+const makeQuery = <TDep, TOut>(
+  name: string,
+  dependencies: TDep,
+  inner: (dependencies: TDep) => TOut
+): Query<TDep, TOut> => {
   const dependencyKeys = Object.keys(dependencies)
   const dependentSelectors = dependencyKeys.map((i) => {
     const dependency = dependencies[i] as Queryable<any>
     if (!dependency[isQueryable]) {
-      throw new Error(`Invalid dependency. ${i} is not Queryable.`)
+      throw new Error(`Invalid dependency provided for ${name}. ${i} is not Queryable.`)
     }
 
     return dependency.selector
@@ -37,27 +27,32 @@ const createSelectorFromDependencies = <TDep, TOut>(
     return output
   }
 
-  return createSelector(dependentSelectors, remappedInner)
+  const selector = createSelector(dependentSelectors, remappedInner)
+
+  return {
+    ...fromSelector(selector),
+    inner,
+  }
 }
 
-export const query = <TDep>(name?: string) => {
-  // TODO do something with name
-  let deps = {} as QueryDependencies<TDep>
+export class QueryBuilder<TDep> {
+  private dependencies: TDep
+  private name: string
 
-  const instance: QueryBuilder<TDep> = {
-    with: <TNewDep>(dependencies: QueryDependencies<TNewDep>) => {
-      deps = dependencies as any
-      return (instance as unknown) as QueryBuilder<TNewDep>
-    },
-    as: <TOut>(inner: (dependencies: TDep) => TOut): Query<TDep, TOut> => {
-      const selector = createSelectorFromDependencies(inner, deps)
-
-      return {
-        ...fromSelector(selector),
-        inner,
-      }
-    },
+  constructor(name: string) {
+    this.name = name
   }
 
-  return instance
+  with<TNewDep>(dependencies: QueryDependencies<TNewDep>) {
+    this.dependencies = dependencies as any
+    // TODO, this isn't the proper type for left part of Omit, it should be `this`
+    // but I can't change the generic...
+    return (this as unknown) as Omit<QueryBuilder<TNewDep>, 'with'>
+  }
+
+  as<TOut>(inner: (dependencies: TDep) => TOut) {
+    return makeQuery(this.name, this.dependencies, inner)
+  }
 }
+
+export const query = (name: string = '') => new QueryBuilder(name)
