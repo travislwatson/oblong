@@ -1,4 +1,4 @@
-import { OblongState } from '../foundation/types'
+import { OblongState } from './types'
 
 const nestingLocatorPattern = /^([a-z0-9_-]+\.)*([a-z0-9_-]+)$/i
 const isNestingLocator = (locator) => nestingLocatorPattern.test(locator)

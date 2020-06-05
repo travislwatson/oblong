@@ -1,4 +1,4 @@
-import { fromActionCreator } from '../injectables/fromActionCreator'
+import { fromActionCreator } from './fromActionCreator'
 
 export const hydrate = fromActionCreator((state) => ({
   type: 'HYDRATE',

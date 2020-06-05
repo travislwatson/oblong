@@ -64,8 +64,16 @@ export class StateBuilder<TState> {
     return this as Omit<this, 'setEquality'>
   }
 
-  as<TDefault = TState>(defaultValue: TDefault | Queryable<TDefault>) {
-    return makeState<TDefault>(this.locator, this.equalityFn, defaultValue as any)
+  as<TDefault extends TState>(
+    defaultValue: unknown extends TState
+      ? TDefault | Queryable<TDefault>
+      : TState | Queryable<TState>
+  ) {
+    return makeState<unknown extends TState ? TDefault : TState>(
+      this.locator,
+      this.equalityFn,
+      defaultValue as any
+    )
   }
 }
 

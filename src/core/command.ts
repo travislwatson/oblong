@@ -1,13 +1,15 @@
-import { Command, Dependencies, CommandArgs, Injectable } from '../foundation/types'
+import { Command, Dependencies, CommandArgs, Injectable, Event } from '../foundation/types'
 import { makeId } from '../utils/makeId'
 import { createCommandLoader } from '../loading/commandLoading'
 import { globalErrorSink } from '../errors/globalErrorSink'
+import { OblongError } from '../errors/OblongError'
 
 const makeCommand = <TDep, TArgs extends unknown[], TOut>(
   name: string,
   deps: Dependencies<TDep>,
   ignoreLoading: boolean,
   ignoreErrors: boolean,
+  eventHandlers: Event[],
   inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
 ): Command<TDep, TArgs, TOut> => {
   deps = deps ?? ({} as any)
@@ -42,9 +44,14 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
         output.catch((error) => {
           if (Array.isArray(error) || typeof error === 'string') {
             globalErrorSink.resolve(storeCache).get().logError(error)
+          } else if (error?.isOblongError) {
+            globalErrorSink
+              .resolve(storeCache)
+              .get()
+              .logError((error as OblongError).allErrors)
+            ;(error as OblongError).allErrors.forEach((i) => console?.warn?.(i))
           } else {
             globalErrorSink.resolve(storeCache).get().logError('An unknown error occurred.')
-            console?.error?.(error)
           }
         })
       }
@@ -58,13 +65,13 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
       if (ignoreErrors) {
         throw e
       } else {
-        console?.error?.(e)
+        console?.warn?.(e)
         globalErrorSink.resolve(storeCache).get().logError('An unknown error occurred.')
       }
     }
   }
 
-  return {
+  const command: Command<TDep, TArgs, TOut> = {
     inner,
     name,
     resolve: (store) => {
@@ -74,6 +81,16 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
       }
     },
   }
+
+  if (eventHandlers?.length > 0) {
+    command.register = (store) => {
+      for (const event of eventHandlers) {
+        store.registerEventHandler(event, command)
+      }
+    }
+  }
+
+  return command
 }
 
 export class CommandBuilder {
@@ -88,7 +105,7 @@ export class CommandBuilder {
   }
 
   as<TArgs extends any[], TOut>(inner: (o: CommandArgs<{}, TArgs>) => TOut) {
-    return makeCommand<{}, TArgs, TOut>(this.name, {}, false, false, inner)
+    return makeCommand<{}, TArgs, TOut>(this.name, {}, false, false, [], inner)
   }
 }
 
@@ -97,6 +114,7 @@ export class CommandBuilderWithDependencies<TDep> {
   private dependencies: Dependencies<TDep>
   private isIgnoringLoading: boolean
   private isIgnoringErrors: boolean
+  private eventHandlers: Event[]
 
   constructor(name: string, dependencies: Dependencies<TDep>) {
     this.name = name
@@ -113,12 +131,18 @@ export class CommandBuilderWithDependencies<TDep> {
     return this as Omit<this, 'ignoreErrors'>
   }
 
+  on(...event: Event[]) {
+    this.eventHandlers = event
+    return this as Omit<this, 'on'>
+  }
+
   as<TArgs extends any[], TOut>(inner: (o: CommandArgs<TDep, TArgs>) => TOut) {
     return makeCommand<TDep, TArgs, TOut>(
       this.name,
       this.dependencies,
       this.isIgnoringLoading,
       this.isIgnoringErrors,
+      this.eventHandlers,
       inner
     )
   }

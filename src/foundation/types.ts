@@ -8,15 +8,18 @@ export type OblongState = any
 export interface OblongStore extends Store {
   history: History
   registerReducer: (location: string, reducer: Reducer) => void
+  registerEventHandler: (event: Event, command: Command<any, [], any>) => void
+  eventHandlers: { [k: string]: Command<any, [], any>[] }
 }
 
-interface PropertyDefinition<T> {
+export interface PropertyDefinition<T> {
   get: () => T
   set?: (newValue: T) => void
 }
 
 export interface Injectable<T> {
   resolve: (store: OblongStore) => PropertyDefinition<T>
+  register?: (store: OblongStore) => void
 }
 
 export type Dependencies<T> = {
@@ -70,3 +73,7 @@ export type PortableReducer<TState = any> = Injectable<TState> &
     location: string
     reducer: Reducer<TState>
   }
+
+export type Event<TArgs extends any[] = []> = {
+  name: string
+} & Injectable<{ emit: (...args: TArgs) => void }>

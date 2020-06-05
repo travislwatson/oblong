@@ -11,6 +11,10 @@ import {
   rootState,
   globalErrorSink,
   createErrorSink,
+  OblongError,
+  makeEvent,
+  dispatch,
+  getState,
 } from 'oblong'
 import { Link } from 'react-router-dom'
 
@@ -27,7 +31,7 @@ const defaultAge = O.query()
   .with({ currentLocation })
   .as((o) => o.currentLocation.pathname.length)
 
-const age = O.state('user.age').as<number>(defaultAge)
+const age = O.state<number>('user.age').as(defaultAge)
 
 const profile = O.state('user.profile').setEquality('shallow').as({ name: 'John Doe' })
 
@@ -237,10 +241,10 @@ const failRaw = O.command('failRaw')
   })
 const fooSink = createErrorSink('foo')
 const failAsync = O.command('failAsync').as(async () => {
-  throw 'failAsync single'
+  throw new OblongError('failAsync single')
 })
 const failAsyncMultiple = O.command('failAsyncMultiple').as(async () => {
-  throw ['failAsync multi', 'failAsync ple']
+  throw new OblongError(['failAsync multi', 'failAsync ple'])
 })
 const failNatural = O.command('failNatural').as(async () => {
   throw new TypeError('oh wow this is bad')
@@ -289,6 +293,24 @@ const Errors = O.view('Errors')
     </>
   ))
 
+const myEvent = makeEvent('myEvent')
+const onMyEvent = O.command('onMyEvent')
+  .with({ dispatch, getState })
+  .on(myEvent)
+  .as((o) => {
+    console.log('myEvent seen')
+    console.log(o.getState())
+    o.dispatch({ type: 'waddup', payload: 'foo' })
+  })
+const Events = O.view()
+  .with({ myEvent, onMyEvent })
+  .as((o) => (
+    <div>
+      <h2>Events</h2>
+      <button onClick={() => o.myEvent.emit()}>Emit</button>
+    </div>
+  ))
+
 export const App = () => (
   <>
     <h1>Playground</h1>
@@ -301,5 +323,6 @@ export const App = () => (
     <Counter />
     <Hydrate />
     <Errors />
+    <Events />
   </>
 )

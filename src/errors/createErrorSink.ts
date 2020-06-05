@@ -2,7 +2,7 @@ import { state } from '../core/state'
 import { ErrorSink, isQueryable } from '../foundation/types'
 
 export const createErrorSink = (name: string): ErrorSink => {
-  const errors = state(`oblong.errors.${name}`).as<string[]>([])
+  const errors = state<string[]>(`oblong.errors.${name}`).as([])
 
   const clear = (store) => store.dispatch(errors.actionCreator([]))
   const dismiss = (store, error: string) => {

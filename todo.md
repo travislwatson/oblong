@@ -6,7 +6,6 @@ Done items have now been moved to [features.md](features.md).
 
 ## Planned Features
 
-- Events + Emits + Subscription
 - Commands should auto-emit 3 events: (), .then, and .catch. Only async commands will emit .then and .catch
 - Routing events
 - form support

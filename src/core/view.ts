@@ -10,6 +10,7 @@ import {
 } from '../foundation/types'
 
 const always = () => true
+const noop = () => {}
 const makeView = <TDep extends {}, TProps>(
   name: string,
   deps: Dependencies<TDep>,
@@ -29,9 +30,21 @@ const makeView = <TDep extends {}, TProps>(
     .filter((i) => i[isQueryable])
     .map((i) => (i as Queryable<any>).selector)
 
+  let register = (store: OblongStore) => {
+    Object.values(deps)
+      .filter((i) => (i as Injectable<unknown>).register)
+      .forEach((i) => {
+        ;(i as Injectable<unknown>).register(store)
+        // Registrations should only occur once
+        delete (i as Injectable<unknown>).register
+      })
+    register = noop
+  }
+
   const unmemoized = (props: TProps) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const store = useStore() as OblongStore
+    register(store)
 
     // Even though the results of the selectors are not used,
     // the hook must be called to trigger view re-renders

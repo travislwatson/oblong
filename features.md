@@ -11,6 +11,7 @@ This is effectively a ToDo list for API documentation
 - Commands
   - `O.command('doIt')` For event emission
   - `O.command().with({ name })` Can have dependencies
+  - `O.command().on(event)` Can watch for event
   - `O.command().as(() => { ... })` Any function as implementation
 - Queries
   - `O.query('firstName')` For... debugging? Not used yet
@@ -42,8 +43,10 @@ This is effectively a ToDo list for API documentation
   - `.ignoreLoading()` on commands to prevent default behavior
 - Interop
   - `fromSelector` to allow plain selectors to be used as a dependency
-  - `fromActionCreator` to allow plain action creators to be used as a dependency
+  - `fromActionCreator` to allow plain action creators to be used as a
+    dependency
   - `portableReducer` to allow either reducer creation or third party redux library integration
+  - `dispatch`/`getState` for access to those raw underlying functions
 - Routing
   - `currentLocation` query for current route
 - Miscellaneous
@@ -52,3 +55,7 @@ This is effectively a ToDo list for API documentation
 - Error handling
   - Commands have error tracking built in for the `globalErrorSink`
   - Custom error sinks can be created using `createErrorSink`
+  - Avoid lint errors by wrapping strings or arrays in `OblongError`
+- Eventing
+  - Events can be made and emitted via `makeEvent`
+  - Commands can watch for events using `.on`
