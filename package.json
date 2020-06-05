@@ -1,6 +1,6 @@
 {
   "name": "oblong",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Meta-framework for productive React+Redux development",
   "main": "dist/es5/index.js",
   "module": "dist/es6/index.js",
