@@ -1,10 +1,10 @@
 # Warning
 
-This project is extremely early and in proof of concept phase. The API is mostly still missing. Core features are buggy. It has almost no documentation. Tests are non-existent.
+This project is not stable and should not be used for anything you care about. The API is still incomplete. There may be bugs. There are no tests. There's almost no documentation.
 
 Proceed at your own peril.
 
-If you're curious about something, the answer might be in [FAQ](faq.md). If you want to look at some of the things that have steered the development of Oblong, check out [References](references.md). To look at the growing list of what needs to be done for the MVP, see [TODO](todo.md).
+While there's still no documentation, you might learn something from [features](features.md). I also have some rants in the improperly named [FAQ](faq.md).
 
 # Installation
 
@@ -13,8 +13,7 @@ Install Oblong and dependencies from `npm i oblong react react-redux react-route
 Wrap the root of your application with `<OblongApp>`:
 
 ```js
-import React from 'react'
-import { OblongApp } from 'oblong'
+import { OblongApp, React } from 'oblong'
 
 export const App = () => (
   <OblongApp>
@@ -66,7 +65,7 @@ So we're creating a piece of state which has a default of `'John Doe'`. But what
 
 While highly recommended, both the default and the locator are optional. `O.state().as()` will create a unique piece of state in an unorganized area with a default value of `undefined`.
 
-State can be read and used inside of a command, query or view. It can be changed inside of a command or view.
+State can be read and used inside of a command, query or view. It can be changed inside of a command or view. To change a piece of state, assign to it: `o.name = 'New Name'`.
 
 There's no `.with({ ... })` in this example. For most simple state storage, you will not need dependencies. For advanced state usage, see TODO.
 
@@ -96,7 +95,7 @@ While optional, a command without any dependencies in `with` or without an imple
 
 Commands can depend on on other commands, and can use the results of queries and state.
 
-The name provided (in this case `saveProfile`) is used for event generation. This allows you to view your command calls in the Redux DevTools and have inverted command dependencies (instead of commandA calling commandB, commandB can simply listen for a call to commandA).
+The name provided (in this case `saveProfile`) is used for debugging. This allows you to view your command calls in the Redux DevTools. In this case it will be `saveProfile()`.
 
 ## Query
 
@@ -130,7 +129,7 @@ Views can depend on any combination of commands, queries, and state. State can b
 Once the dependency injection is accounted for, views are nearly identical to Functional React Components. The most important thing this means is that you have the full power of hooks available.
 
 ```js
-import { O } from 'oblong'
+import { O, React } from 'oblong'
 import { name, save } from './profile'
 
 export const EditProfile = O.view('EditProfile')
