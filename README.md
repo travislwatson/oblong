@@ -1,11 +1,3 @@
-# Warning
-
-This project is not stable and should not be used for anything you care about. The API is still incomplete. There may be bugs. There are no tests. There's almost no documentation.
-
-Proceed at your own peril.
-
-While there's still no documentation, you might learn something from [features](features.md). I also have some rants in the improperly named [FAQ](faq.md).
-
 # Installation
 
 Install Oblong and dependencies from `npm i oblong react react-redux react-router-dom redux redux-devtools-extension reselect`.
@@ -154,3 +146,7 @@ export const EditProfile = O.view('EditProfile')
 ```
 
 The name provided is used in the React DevTools.
+
+# Disclaimer
+
+The ideas and design of this project, the code contained within this repository that implements those ideas, and the views, opinions, or general communications expressed in relation to this project are my sole authorship and responsibility and do not represent my employer in any way.
