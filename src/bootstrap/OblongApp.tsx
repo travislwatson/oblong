@@ -2,16 +2,13 @@ import * as React from 'react'
 import { Provider } from 'react-redux'
 import { applyMiddleware, createStore, Reducer } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import { BrowserRouter, BrowserRouterProps } from 'react-router-dom'
 import { makeReducer } from '../foundation/makeReducer'
 import { OblongStore, Command, Event } from '../foundation/types'
-import { RouteWatcher } from '../routing/RouteWatcher'
-import { HistoryAttacher } from '../routing/HistoryAttacher'
 import { eventingMiddleware } from '../foundation/eventingMiddleware'
 import { portableReducers } from '../foundation/portableReducers'
 import { eventHandlers } from '../foundation/eventHandlers'
 
-type OblongConfigProps = BrowserRouterProps & {
+type OblongConfigProps = {
   children: React.ReactNode
 }
 
@@ -42,12 +39,6 @@ const makeStore = (): OblongStore => {
 
 export const OblongApp: React.FC<OblongConfigProps> = React.memo((props) => (
   <Provider store={makeStore()}>
-    <BrowserRouter {...props}>
-      <>
-        <RouteWatcher />
-        <HistoryAttacher />
-        {props.children}
-      </>
-    </BrowserRouter>
+    <>{props.children}</>
   </Provider>
 ))

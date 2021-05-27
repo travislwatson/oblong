@@ -1,14 +1,14 @@
-import * as React from 'react'
-import { useHistory } from 'react-router-dom'
-import { useStore } from 'react-redux'
-import { OblongStore } from '../foundation/types'
+// import * as React from 'react'
+// import { useHistory } from 'react-router-dom'
+// import { useStore } from 'react-redux'
+// import { OblongStore } from '../foundation/types'
 
-export const HistoryAttacher = () => {
-  const history = useHistory()
-  const store = useStore()
-  React.useEffect(() => {
-    ;(store as OblongStore).history = history
-  }, [store, history])
+// export const HistoryAttacher = () => {
+//   const history = useHistory()
+//   const store = useStore()
+//   React.useEffect(() => {
+//     ;(store as OblongStore).history = history
+//   }, [store, history])
 
-  return null
-}
+//   return null
+// }
