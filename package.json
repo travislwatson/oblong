@@ -2,14 +2,15 @@
   "name": "oblong",
   "version": "0.3.1",
   "description": "Meta-framework for productive React+Redux development",
-  "main": "dist/es5/index.js",
-  "module": "dist/es6/index.js",
-  "types": "dist/es6/index.d.ts",
+  "main": "dist/main.js",
+  "module": "dist/main.js",
+  "types": "dist/main.d.ts",
   "sideEffects": false,
   "scripts": {
-    "start": "rm -rf playground/src/oblong && tsc -w --outDir \"./playground/src/oblong\"",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublishOnly": "tsc && tsc --build tsconfig.es5.json"
+    "start": "tsc -w",
+    "prepublishOnly": "tsc",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "repository": {
     "type": "git",
@@ -21,25 +22,26 @@
     "url": "https://github.com/traviswatsonws/oblong/issues"
   },
   "homepage": "https://github.com/traviswatsonws/oblong#readme",
-  "peerDependencies": {
-    "react": "<17",
-    "react-redux": "<8",
+  "dependencies": {
+    "react": "*",
+    "react-redux": "*",
     "react-router-dom": "<6",
-    "redux": "<5",
-    "redux-devtools-extension": "<3",
-    "reselect": "<5"
+    "redux": "*",
+    "redux-devtools-extension": "*",
+    "reselect": "*"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.3",
+    "@storybook/addon-actions": "^6.2.9",
+    "@storybook/addon-essentials": "^6.2.9",
+    "@storybook/addon-links": "^6.2.9",
+    "@storybook/react": "^6.2.9",
     "@types/node": "^14.0.6",
     "@types/react": "<17",
     "@types/react-redux": "<8",
     "@types/react-router-dom": "<6",
-    "react": "<17",
-    "react-redux": "<8",
-    "react-router-dom": "<6",
-    "redux": "<5",
-    "redux-devtools-extension": "<3",
-    "reselect": "<5"
-  },
-  "dependencies": {}
+    "babel-loader": "^8.2.2",
+    "react-dom": "^17.0.2",
+    "typescript": "^4.3.2"
+  }
 }

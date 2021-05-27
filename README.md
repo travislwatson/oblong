@@ -1,20 +1,22 @@
 # Installation
 
-Install Oblong and dependencies from `npm i oblong react react-redux react-router-dom redux redux-devtools-extension reselect`.
+Install Oblong `npm i oblong`.
 
-Wrap the root of your application with `<OblongApp>`:
+Run your app:
 
-```js
-import { OblongApp, React } from 'oblong'
+```ts
+import { renderOblongApp } from 'oblong'
 
-export const App = () => (
-  <OblongApp>
-    <h1>Hello World</h1>
-  </OblongApp>
-)
+const App = () => <h1>Hello World</h1>
+
+renderOblongApp({
+  routes: {
+    '/': App,
+  },
+})
 ```
 
-Congratulations, you now have a fully configured Oblong application!
+Congratulations, you now have a fully functional Oblong application!
 
 # Quick Start Guide
 
@@ -69,7 +71,7 @@ Commands encapsulate all your application side effects. This is where your code 
 import { O } from 'oblong'
 import { newName, profile } from './profile'
 
-export const saveProfile = O.command('saveProfile')
+export const saveProfile = O.command()
   .with({ newName, profile })
   .as(async (o) => {
     const response = await fetch('/profile', {
@@ -87,11 +89,11 @@ While optional, a command without any dependencies in `with` or without an imple
 
 Commands can depend on on other commands, and can use the results of queries and state.
 
-The name provided (in this case `saveProfile`) is used for debugging. This allows you to view your command calls in the Redux DevTools. In this case it will be `saveProfile()`.
+If a name is provided (in this case it would look like `O.command('saveProfile')`) it is used for debugging. This allows you to view your command calls in the Redux DevTools. This example would look like `saveProfile()`.
 
 ## Query
 
-Oblong is designed for normalized state storage, which mean queries to denormalize that data into something more useful are critical in making your application fast and organized. They should be pure declarative functions: use only the inputs and return only the outputs.
+Oblong is designed for normalized state storage, which mean queries to de-normalize that data into something more useful are critical in making your application fast and organized. They should be pure declarative functions: use only the inputs and return only the outputs.
 
 ```js
 import { O } from 'oblong'
@@ -110,7 +112,7 @@ A query can depend on state or other queries. Queries cannot depend on commands,
 
 While optional, a query without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.query().as()` is required to create a bare minimum no-op query that always returns `undefined`.
 
-Queries can be named to assist with debugging.
+Like commands, queries can be named to assist with debugging.
 
 ## View
 
@@ -124,7 +126,7 @@ Once the dependency injection is accounted for, views are nearly identical to Fu
 import { O, React } from 'oblong'
 import { name, save } from './profile'
 
-export const EditProfile = O.view('EditProfile')
+export const EditProfile = O.view()
   .with({ name, save })
   .as((o) => (
     <>
@@ -145,7 +147,7 @@ export const EditProfile = O.view('EditProfile')
   ))
 ```
 
-The name provided is used in the React DevTools.
+If a name is provided (such as `O.view('EditProfile')`) it is used in the React DevTools.
 
 # Disclaimer
 

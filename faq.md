@@ -24,14 +24,13 @@ O.
 - Intelligent Typescript support
 - Common sense naming conventions, focusing on what it is, not how it's implemented
 - State and Queries are live-bound inside commands, no stale values
-- IE 11 is not ignored
 - Does not reinvent the wheel, it is not a ground-up framework, stands on shoulders of giants
 
 #### Isn't React already a framework?
 
-React _can be used_ as an all-in-one framework... kindof, but even with (especially with?) hook syntax, it makes simple things such as sharing state across component boundaries unpleasant. If you want to unit test your components, it becomes even more difficult.
+React _can be used_ as an all-in-one framework... kindof, but even with (especially with?) hook syntax, it makes simple things such as sharing state across component boundaries unpleasant. It considers core features like routing and dependency injection second-class citizens.
 
-React is an amazing UI library. And JSX is literally the perfect template syntax. Oblong embraces the beauty of the React library, taking care of the binding and management, letting React do what it does best: render UI's.
+React is an amazing UI library. And JSX is literally the perfect template syntax. Oblong embraces the beauty of the React library, taking care of the routing, binding, and management, letting React do what it does best: render UI's.
 
 #### How much of my state should I put in Oblong?
 
@@ -39,9 +38,9 @@ Redux typically recommends you store only what you need. Oblong disagrees. **Sto
 
 If you eventually get to the point where you see performance issues, revisit your exact use case then. You can store very large amounts of data in a Redux store. And you can update it extremely often.
 
-In Oblong, several layers of caching are on by default. Immutability is enforced by default. Simple, fast dirty checking is on by default in state setters, queries, views, and React itself. Oblong is fast by default.
+In Oblong, several layers of caching are on by default. Immutability is enforced by default. Simple, fast dirty checking is on by default in state setters, queries, views, and React itself. _Oblong is fast by default_.
 
-Oblong tries to make it hard to do the wrong thing. This means that whatever state you store in Oblong is probably going to be faster, more reliable, and more useful than state you place elsewhere.
+Oblong tries to make it hard to do the wrong thing. This means that whatever state you store in Oblong is probably going to be faster, more predictable, and more useful than state you place elsewhere.
 
 _Seriously, store all of your state in Oblong._
 
@@ -63,18 +62,6 @@ If you've exhausted all your options, then sure go ahead and see if storing stat
 
 Oblong should be your first choice, React is your last resort.
 
-#### Why are your dependencies so loosely specified?
-
-The dependencies used by Oblong, as well as some that are related, tend to be quite picky about their sub-dependencies. It would be better in some ways to have a more strict and confident set of dependencies, but the flip side is that it would be more difficult for end users to fix dependency conflicts on their own. By pinning only on a major version bump, Oblong provides the most flexibility it can while protecting against API changes across major version bumps.
-
-#### Why IE 11 support?
-
-The only somewhat interesting feature that would require Oblong to drop IE 11 support would be Proxies. And indeed, major players such as MobX and React Easy State choose that path.
-
-However, because Oblong chose to use the Dependency Injection pattern, it is able to use `defineProperty` for similar assignment functionality. Subscriptions are supported via hooks, such as `useEffect(onNameChange, [name])`.
-
-IE 11 is not end of life. Many business and applications must, and should, support it. So until our core dependencies prevent us from maintaining IE 11 compatibility, Oblong will support it.
-
 ## Writing Oblong applications
 
 #### How do I organize my Oblong application?
@@ -83,7 +70,7 @@ Years ago I read an answer to a similar question about React. The answer was unf
 
 Oblong takes this to heart. Moving things around is meant to feel as painless as possible given the constraints of a JavaScript application. Don't like where that piece of state is? Move it and update your references. The decoupling provided by dependency injection means you can organize your modules however you see fit. One file per atomic piece? Sure. One file per feature? Yep. One file per page? If you want. Whatever feels right. And if it doesn't feel right, move stuff around until it does.
 
-#### Can I use destructuring?
+#### I normally use destructuring for `props`, why can't I do that with Oblong?
 
 While there's nothing stopping you from destructuring your `o` dependencies, doing so will materialize all values. This breaks two things: you can no longer use an assignment for state such as `o.name =`.
 
@@ -115,62 +102,42 @@ const updateAge = O.command()
   })
 ```
 
-Because of this odd behavior, it is strongly recommended to avoid destructuring, and always use `o.` when accessing any dependnecy.
+Because of this odd behavior, it is strongly recommended to avoid destructuring, and always use `o.` when accessing any dependency.
 
 ## Interoperability
 
-#### What is required?
-
-React, Redux, React-Redux, React-Router, Reselect, and the Redux Devtools Extension.
-
-#### Is Typescript required?
-
-No. Not even close.
-
-#### Can I use Typescript?
-
-If you insist. ;-)
-
 #### Can I use Redux devtools?
 
-Yes! Redux devtools are fully supported by Oblong. Please be aware that if you have some command or state assignment in a lifecycle method or `useEffect` hook (for instance `onEnter` functionality when loading a route), time travel debugging may be affected.
+Yes! Redux devtools are fully supported by Oblong.
 
 #### Can I use React devtools?
 
-Yes! Oblong wraps your functional components, elminating component boundary noise, so you'll have a clean React tree. The hooks used should surface debug values in the inspector.
+Yes! Oblong wraps your functional components, eliminating component boundary noise, so you'll have a clean React tree.
 
 #### Can I use React hooks?
 
-Yes! Hooks are fully supported.
+Yes! Hooks are fully supported, and Oblong uses hooks internally to configure your dependencies.
 
-#### Can I use React class components?
+#### State is great, but can I just write a reducer?
 
-Comming soon. (views will be able to be implemented as classes, but a component boundary will be created for dependency resolution)
+Yes! And not only can you do so, Oblong's `portableReducer` embraces the path model from states which lets you avoid the `combineReducers` headache and benefit from code splitting natively.
 
-#### Can I use a redux-style reducer?
+#### Can I use my own selector, such as createSelector from Reselect?
 
-Coming soon. (will support portable reducers, similar to how it works in redux's documentation on code splitting)
-
-#### Can I use createSelector?
-
-Coming soon. (commands, queries, and views will be able to consume selectors created via createSelector)
+Yes! Queries actually use Reselect under the hood, and for any selector you have simply use `fromSelector` to get an injectable version.
 
 #### Can I use Immer?
 
-Yes! Not only is Immer fully supported, but the syntax works wonderfully well for state assignments inside of commands.
+Yes! Not only is Immer fully supported, but the syntax works wonderfully well for complex immutable state assignments. For smaller projects, try simply using immutable modification patterns. You'll be surprised how far you get, and Oblong's freezing will make sure you don't accidentally mutate your state or query outputs.
 
 #### Can I use Immutable.js?
 
-TBD... need to research this. I'm not sure it's actually compatible with redux.
+Maybe, but it's probably not a good idea. Redux thrives on having simple serializable state, and Oblong is no exception.
 
-#### Can I use redux-thunk?
+#### Can I use redux-thunk (or other middleware)?
 
-Coming soon. (Commands are meant to replace thunks, but once generic injectables are allowed and additional middlewares are allowed, nothing is stopping someone from using it)
-
-#### Can I use redux-saga?
-
-TBD... no clue, but probably OK? Commands can't support it natively yet.
+Commands are meant as a drop-in replacement for redux-thunk library, so it is not included by default. But all Redux compatible middleware is supported in Oblong, and redux-thunk is no exception.
 
 #### Can I use redux-toolkit?
 
-TBD... I think this integration should work OK, but it's probably going to be low value add. This project eliminates almost all of the need
+Oblong is not a good fit for RTK, and it's not advised to use both within the same application.
