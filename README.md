@@ -1,153 +1,107 @@
+# What is Oblong?
+
+Oblong is a Typescript UI framework for helping you develop client applications efficiently with just the right amount of boilerplate.
+
+It intends to be a meta framework: as long as the user experience is uniform and complete, existing popular libraries are used instead of reinventing the wheel. The benefit of this approach is that you get a clean and cohesive development experience while having the stability, performance, and feature-set (through escape hatches) of the underlying battle-tested libraries.
+
+# Architecture
+
+Oblong embraces one way data flow using the core four pieces:
+
+1. **State** is for any value you want to store and change
+2. **Views** are how you render your app and handle user inputs
+3. **Commands** perform any work such as making API calls
+4. **Queries** keep state clean by computing derived state efficiently
+
 # Installation
 
-Install Oblong `npm i oblong`.
+Available through npm: `npm i oblong`
 
-Run your app:
+`createApp` is where you configure Oblong. All configuration is optional except at least one route:
 
-```ts
-import { renderOblongApp } from 'oblong'
+```tsx
+import { createApp } from 'oblong'
+import { Home } from './home'
 
-const App = () => <h1>Hello World</h1>
-
-renderOblongApp({
+export const App = createApp({
   routes: {
-    '/': App,
+    '/': Home,
   },
 })
 ```
 
-Congratulations, you now have a fully functional Oblong application!
+You can use Oblong anywhere you can use React. Use the generated App component as you normally would. Here's a web example:
 
-# Quick Start Guide
+```tsx
+import { render } from 'react-dom'
+import { App } from './app'
 
-Oblong revolves around four fundamental atomic building blocks:
-
-1. `O.state()` - where you store everything in a normalized way
-2. `O.command()` - how you handle user input and interact with the outside world (side effects)
-3. `O.query()` - transforms your normalized state into more useful representations
-4. `O.view()` - renders all your components and interacts with the user
-
-For each of those blocks, there are three common methods to their definitions:
-
-1. `O.state('name')`, etc. - Each definition accepts a string name as its sole argument
-2. `.with({ ... })` - When dependencies are needed, they are specified here
-3. `.as(...)` - Where all the business happens, this is where you write _your_ code
-
-See below for how to combine these four blocks with each common method
-
-## State
-
-State is anything you wish to store, as long as it is serializable. It can be simple values like strings, numbers, or booleans. It can be complex objects or arrays.
-
-```js
-import { O } from 'oblong'
-
-export const name = O.state('user.profile.name').as('John Doe')
+render(<App />, document.getElementById('root'))
 ```
 
-So we're creating a piece of state which has a default of `'John Doe'`. But what's the `user.profile.name` bit? This is how Oblong stores and locates your data in the Redux state tree. In this case, if we called `name = 'Jane Doe'`, then our state tree would look like:
+# Quick Start
 
-```json
-{
-  "user": {
-    "profile": {
-      "name": "Jane Doe"
+Let's build a counter game where we have to click the counter up fast enough to hit the max. You can see a complete and interactive version [on StackBlitz](https://stackblitz.com/edit/oblong-counter-game?file=index.tsx). First we need some **state** to store the click count:
+
+```tsx
+import { state } from 'oblong'
+
+const clickCount = state('myGame.clickCount').as(0)
+```
+
+For simplicity, we'll stop at a hard coded 10 clicks. Keen eyes notice this is derived state, which is exactly what **query** is for:
+
+```tsx
+import { query } from 'oblong'
+
+const isPlaying = query()
+  .with({ clickCount }) // ⬅ Dependency Injection! 🎉
+  .as((o) => o.clickCount < 10)
+```
+
+Each click will bump the count up, but be quick, because it will come back down in 2 seconds!
+
+```tsx
+import { command } from 'oblong'
+
+const fallDown = command()
+  .with({ clickCount, isPlaying })
+  .as((o) => {
+    if (o.isPlaying) {
+      o.clickCount = o.clickCount - 1 // ⬅ That's actually immutable Redux! 💪
     }
-  }
-}
-```
+  })
 
-While highly recommended, both the default and the locator are optional. `O.state().as()` will create a unique piece of state in an unorganized area with a default value of `undefined`.
+const hitUp = command()
+  .with({ clickCount, isPlaying, fallDown }) // ⬅ State, Queries, & Commands! 🤭
+  .as((o) => {
+    if (o.isPlaying) {
+      o.clickCount = o.clickCount + 1
 
-State can be read and used inside of a command, query or view. It can be changed inside of a command or view. To change a piece of state, assign to it: `o.name = 'New Name'`.
-
-There's no `.with({ ... })` in this example. For most simple state storage, you will not need dependencies. For advanced state usage, see TODO.
-
-## Command
-
-Commands encapsulate all your application side effects. This is where your code goes that "does" something.
-
-```js
-import { O } from 'oblong'
-import { newName, profile } from './profile'
-
-export const saveProfile = O.command()
-  .with({ newName, profile })
-  .as(async (o) => {
-    const response = await fetch('/profile', {
-      method: 'PUT',
-      body: { name: o.newName },
-    })
-
-    const updatedProfile = await response.json()
-
-    o.profile = updatedProfile
+      setTimeout(o.fallDown, 2000)
+    }
   })
 ```
 
-While optional, a command without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.command().as()` is required to create a bare minimum no-op command.
+Now that your state, calculations, and interactivity are broken out (as they should be 😉), views can focus on what they do best:
 
-Commands can depend on on other commands, and can use the results of queries and state.
+```tsx
+import { view } from 'oblong'
 
-If a name is provided (in this case it would look like `O.command('saveProfile')`) it is used for debugging. This allows you to view your command calls in the Redux DevTools. This example would look like `saveProfile()`.
-
-## Query
-
-Oblong is designed for normalized state storage, which mean queries to de-normalize that data into something more useful are critical in making your application fast and organized. They should be pure declarative functions: use only the inputs and return only the outputs.
-
-```js
-import { O } from 'oblong'
-import { firstName, middleInitial, lastName } from './profile'
-
-const middleInitialWithDot = O.query()
-  .with({ middleInitial })
-  .as((o) => (o.middleInitial ? `${o.middleInitial}.` : ''))
-
-export const fullName = O.query()
-  .with({ firstName, middleInitialWithDot, lastName })
-  .as((o) => `${o.firstName} ${o.middleInitialWithDot} ${o.lastName}`)
-```
-
-A query can depend on state or other queries. Queries cannot depend on commands, and state cannot be changed inside queries.
-
-While optional, a query without any dependencies in `with` or without an implementation in `as` won't be very useful. `O.query().as()` is required to create a bare minimum no-op query that always returns `undefined`.
-
-Like commands, queries can be named to assist with debugging.
-
-## View
-
-Last, but far from least, views wrap all your hard work creating state, commands, and queries into a neat package for your user.
-
-Views can depend on any combination of commands, queries, and state. State can be set inside views, but you might find it more manageable to prefer commands for your state assignments.
-
-Once the dependency injection is accounted for, views are nearly identical to Functional React Components. The most important thing this means is that you have the full power of hooks available.
-
-```js
-import { O, React } from 'oblong'
-import { name, save } from './profile'
-
-export const EditProfile = O.view()
-  .with({ name, save })
+const Game = view()
+  .with({ clickCount, hitUp, isPlaying })
   .as((o) => (
     <>
-      <label>
-        Name:
-        <input
-          type="text"
-          value={o.name}
-          onChange={(e) => {
-            o.name = e.target.value
-          }}
-        />
-      </label>
-      <button type="button" onClick={o.save}>
-        Save
+      <button onClick={o.hitUp} disabled={!o.isPlaying}>
+        ☝️
       </button>
+      <label>{o.isPlaying ? `${o.clickCount} clicks` : `You won!`}</label>
+      <progress max="10" value={o.clickCount} />
     </>
   ))
 ```
 
-If a name is provided (such as `O.view('EditProfile')`) it is used in the React DevTools.
+And that's it, your first Oblong application! 🥳 If low boilerplate Redux, natural language fluent api, full React hook compatibility, built-in routing, and dependency injection weren't enough, this is your friendly reminder that Oblong is a Typescript framework. The application we just built in this quick start is 100% fully typed through inference, without a single type definition!
 
 # Disclaimer
 
