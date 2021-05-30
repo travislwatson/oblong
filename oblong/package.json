@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/traviswatsonws/oblong.git"
+    "url": "git+https://github.com/travislwatson/oblong.git"
   },
   "author": "Travis Watson",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/traviswatsonws/oblong/issues"
+    "url": "https://github.com/travislwatson/oblong/issues"
   },
-  "homepage": "https://github.com/traviswatsonws/oblong#readme",
+  "homepage": "https://github.com/travislwatson/oblong#readme",
   "dependencies": {
     "history": "^5.0.0",
     "react": "^17.0.2",
