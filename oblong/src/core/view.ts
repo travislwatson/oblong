@@ -74,7 +74,8 @@ const makeView = <TDep extends {}, TProps>(
     return renderCondition(o) ? innerOutput : null
   }
 
-  unmemoized.displayName = name || inner.name ? `${name || inner.name}View` : 'UnnamedView'
+  unmemoized.displayName =
+    name || inner.name ? `${name || inner.name}View` : 'UnnamedView'
 
   const output = (React.memo(unmemoized) as unknown) as View<TDep, TProps>
 
@@ -109,40 +110,14 @@ export class ViewBuilderWithDependencies<TDep> {
     this.dependencies = dependencies
   }
 
-  if(renderCondition: (o: TDep) => boolean) {
-    this.renderCondition = renderCondition
-    return this as Omit<this, 'if'>
-  }
-
   as<TProps = unknown>(inner: React.FC<TDep & TProps>) {
-    return makeView<TDep, TProps>(this.name, this.dependencies, this.renderCondition, inner)
+    return makeView<TDep, TProps>(
+      this.name,
+      this.dependencies,
+      this.renderCondition,
+      inner
+    )
   }
 }
 
 export const view = (name?: string) => new ViewBuilder(name)
-
-// export interface ViewBuilder<TDep> {
-//   with: <TNewDep>(dependencies: Dependencies<TNewDep>) => ViewBuilder<TNewDep>
-//   if: <TProps>(condition: (o: TDep & TProps) => boolean) => ViewBuilder<TDep>
-//   as: <TProps>(inner: React.FC<TDep & TProps>) => View<TDep, TProps>
-// }
-
-// const defaultCondition = () => true
-// export const view = <TDep>(name?: string) => {
-//   let deps = {} as Dependencies<TDep>
-//   let renderCondition: (o: any) => boolean = defaultCondition
-
-//   const instance: ViewBuilder<TDep> = {
-//     with: <TNewDep>(dependencies: Dependencies<TNewDep>) => {
-//       deps = dependencies as any
-//       return (instance as unknown) as ViewBuilder<TNewDep>
-//     },
-//     if: <TProps>(condition: (o: TDep & TProps) => boolean) => {
-//       renderCondition = condition
-//       return instance
-//     },
-//     as: <TProps = {}>(inner: React.FC<TDep & TProps>) => {
-//   }
-
-//   return instance
-// }

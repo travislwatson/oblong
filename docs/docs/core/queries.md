@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# Query
+# Queries
 
 Every front end application will need some amount of calculated information derived from the state. As a rule of thumb: **if you can calculate it, _you should_.** Keep your state as lean and normalized as is reasonable, and use queries for everything you can.
 
@@ -17,8 +17,6 @@ const myQuery = O.query()
 ### Dependencies
 
 The `.with({ ... })` call allows you to specify any dependencies your query has. Queries cannot depend on commands, only state and other queries.
-
-[Click here](#TODO) to read more about dependency injection in Oblong.
 
 ### Query Body
 

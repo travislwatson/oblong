@@ -2,14 +2,13 @@ import * as React from 'react'
 // Re-exporting common dependencies
 export { React }
 
-// Bootstrap
-export { OblongApp } from './bootstrap/OblongApp'
-
 // Core
+export { createApp } from './core/createApp'
 export { command } from './core/command'
 export { query } from './core/query'
 export { state } from './core/state'
 export { view } from './core/view'
+export { O } from './core/big-o'
 
 // Types
 export { Queryable, Injectable, isQueryable } from './foundation/types'

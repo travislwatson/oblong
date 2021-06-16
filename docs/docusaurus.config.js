@@ -21,9 +21,9 @@ module.exports = {
           type: 'doc',
           docId: 'quick-start',
           position: 'left',
-          label: 'Quick Start',
+          label: 'Docs',
         },
-        { to: '/blog', label: 'Blog', position: 'left' },
+        // { to: '/blog', label: 'Blog', position: 'left' },
         {
           href: 'https://github.com/travislwatson/oblong',
           label: 'GitHub',
@@ -59,10 +59,10 @@ module.exports = {
         {
           title: 'More',
           items: [
-            {
-              label: 'Blog',
-              to: '/blog',
-            },
+            // {
+            //   label: 'Blog',
+            //   to: '/blog',
+            // },
             {
               label: 'GitHub',
               href: 'https://github.com/travislwatson/oblong',
@@ -82,11 +82,11 @@ module.exports = {
           editUrl:
             'https://github.com/travislwatson/oblong/edit/master/website/',
         },
-        blog: {
-          showReadingTime: true,
-          editUrl:
-            'https://github.com/travislwatson/oblong/edit/master/website/blog/',
-        },
+        // blog: {
+        //   showReadingTime: true,
+        //   editUrl:
+        //     'https://github.com/travislwatson/oblong/edit/master/website/blog/',
+        // },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },

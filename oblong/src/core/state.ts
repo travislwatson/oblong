@@ -51,7 +51,7 @@ const makeState = <T>(
 }
 
 export class StateBuilder<TState> {
-  private equalityFn: EqualityFn<unknown>
+  private equalityFn: EqualityFn<TState>
   private locator: string
 
   constructor(locator: string) {
