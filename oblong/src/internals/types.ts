@@ -39,9 +39,11 @@ export type Query<TDep, TOut> = Injectable<TOut> &
   Queryable<TOut> & { inner: (dep: TDep) => TOut }
 
 export interface Dispatchable<TPayload> {
-  actionCreator: (
+  actionCreator: (payload: TPayload) => {
+    type: string
     payload: TPayload
-  ) => { type: string; payload: TPayload; meta: unknown }
+    meta: unknown
+  }
 }
 
 export type CommandArgs<TDep, TArgs> = TDep & { args: TArgs }
@@ -54,6 +56,10 @@ export type Command<TDep, TArgs extends any[], TOut> = Injectable<
 
 export type State<T> = Injectable<T> & Queryable<T> & Dispatchable<T>
 
+export type ViewInner<TDep, TProps> = ((
+  deps: TDep,
+  props: TProps
+) => React.ReactElement<any, any> | null) & { displayName?: string }
 export type View<TDep, TProps> = React.FC<TProps> & {
-  inner: React.FC<TDep & TProps>
+  inner: ViewInner<TDep, TProps>
 }

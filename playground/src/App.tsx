@@ -67,7 +67,7 @@ const TrySomething = O.view('TrySomething')
 
 const Profile = O.view('Profile')
   .with({ profile, flipCase, age })
-  .as((o) => (
+  .as((o, props: { placeholder: string }) => (
     <>
       <div>
         <label>
@@ -81,6 +81,7 @@ const Profile = O.view('Profile')
                 name: e.target.value,
               }
             }}
+            placeholder={props.placeholder}
           />
         </label>
         <button type="button" onClick={() => o.flipCase(true)}>
@@ -158,7 +159,7 @@ export const App = () => (
   <>
     <h1>Playground</h1>
     <Greeter />
-    <Profile />
+    <Profile placeholder="Name" />
     <TrySomething />
     <DoWierdTest />
     <Hydrate />

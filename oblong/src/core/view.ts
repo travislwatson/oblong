@@ -7,13 +7,14 @@ import {
   OblongStore,
   isQueryable,
   Queryable,
+  ViewInner,
 } from '../internals/types'
 
 const noop = () => {}
 const makeView = <TDep extends {}, TProps>(
   name: string,
   deps: Dependencies<TDep>,
-  inner: React.FC<TDep & TProps>
+  inner: ViewInner<TDep, TProps>
 ) => {
   deps = deps ?? ({} as any)
 
@@ -62,9 +63,8 @@ const makeView = <TDep extends {}, TProps>(
     )
 
     Object.defineProperties(o, propertyDescriptors)
-    Object.assign(o, props)
 
-    return inner(o as TDep & TProps)
+    return inner(o, props)
   }
 
   unmemoized.displayName =
@@ -88,7 +88,7 @@ export class ViewBuilder {
     return new ViewBuilderWithDependencies(this.name, dependencies)
   }
 
-  as<TProps = unknown>(inner: React.FC<TProps>) {
+  as<TProps = unknown>(inner: ViewInner<{}, TProps>) {
     return makeView(this.name, {}, inner)
   }
 }
@@ -102,7 +102,7 @@ export class ViewBuilderWithDependencies<TDep> {
     this.dependencies = dependencies
   }
 
-  as<TProps = unknown>(inner: React.FC<TDep & TProps>) {
+  as<TProps = unknown>(inner: ViewInner<TDep, TProps>) {
     return makeView<TDep, TProps>(this.name, this.dependencies, inner)
   }
 }
