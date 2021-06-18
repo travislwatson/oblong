@@ -1,0 +1,6 @@
+export { dispatch } from './_experimental/dispatch'
+export { fromActionCreator } from './_experimental/fromActionCreator'
+export { fromSelector } from './_experimental/fromSelector'
+export { getState } from './_experimental/getState'
+export { hydrate } from './_experimental/hydrate'
+export { rootState } from './_experimental/rootState'

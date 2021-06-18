@@ -7,7 +7,7 @@
   "types": "dist/oblong.d.ts",
   "sideEffects": false,
   "scripts": {
-    "start": "tsc -w",
+    "start": "rm -rf dist && tsc -w",
     "prepublishOnly": "rm -rf dist && tsc"
   },
   "repository": {

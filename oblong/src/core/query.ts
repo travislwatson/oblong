@@ -6,7 +6,6 @@ import {
   Queryable,
 } from '../internals/types'
 import { deepFreezeDev } from '../utils/deepFreeze'
-import { fromSelector } from '../experimental/fromSelector'
 
 const makeQuery = <TDep, TOut>(
   name: string,
@@ -40,8 +39,12 @@ const makeQuery = <TDep, TOut>(
   const selector = createSelector(dependentSelectors, remappedInner)
 
   return {
-    ...fromSelector(selector),
     inner,
+    selector,
+    [isQueryable]: true,
+    resolve: (store) => ({
+      get: () => selector(store.getState()),
+    }),
   }
 }
 
