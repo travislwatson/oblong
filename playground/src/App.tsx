@@ -36,9 +36,7 @@ const testQueryMutation = O.query()
 
 const flipCase = O.command('flipCase')
   .with({ profile, age, testQueryMutation })
-  .as<[boolean], void>((o) => {
-    const [upper] = o.args
-
+  .as<[boolean], void>((o, upper: boolean) => {
     o.profile = {
       ...o.profile,
       name: o.profile.name[upper ? 'toUpperCase' : 'toLowerCase'](),
@@ -49,8 +47,8 @@ const flipCase = O.command('flipCase')
 
 const trySomething = O.command('trySomething')
   .with({})
-  .as(async (o) => {
-    if (Math.random() > 0.5) {
+  .as(async (o, shouldFail: boolean) => {
+    if (shouldFail) {
       await twoSeconds()
     } else {
       await twoSecondsFail()
@@ -61,7 +59,9 @@ const TrySomething = O.view('TrySomething')
   .with({ trySomething })
   .as((o) => (
     <div>
-      <button onClick={o.trySomething}>Try Something</button>
+      <button onClick={() => o.trySomething(Math.random() > 0.5)}>
+        Try Something
+      </button>
     </div>
   ))
 

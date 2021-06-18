@@ -46,11 +46,14 @@ export interface Dispatchable<TPayload> {
   }
 }
 
-export type CommandArgs<TDep, TArgs> = TDep & { args: TArgs }
+export type CommandInner<TDep, TArgs extends unknown[], TOut> = (
+  deps: TDep,
+  ...args: TArgs
+) => TOut
 export type Command<TDep, TArgs extends any[], TOut> = Injectable<
   (...args: TArgs) => TOut
 > & {
-  inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
+  inner: CommandInner<TDep, TArgs, TOut>
   name: string
 }
 

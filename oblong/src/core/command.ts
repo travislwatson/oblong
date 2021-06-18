@@ -1,7 +1,7 @@
 import {
   Command,
   Dependencies,
-  CommandArgs,
+  CommandInner,
   Injectable,
 } from '../internals/types'
 import { makeId } from '../utils/makeId'
@@ -9,7 +9,7 @@ import { makeId } from '../utils/makeId'
 const makeCommand = <TDep, TArgs extends unknown[], TOut>(
   name: string,
   deps: Dependencies<TDep>,
-  inner: (dependencies: CommandArgs<TDep, TArgs>) => TOut
+  inner: CommandInner<TDep, TArgs, TOut>
 ): Command<TDep, TArgs, TOut> => {
   deps = deps ?? ({} as any)
   name = name ?? `?${makeId()}`
@@ -18,7 +18,7 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
   let storeCache
 
   const bound = (...args: TArgs) => {
-    const boundDependencies = {} as TDep & { args: TArgs }
+    const boundDependencies = {} as TDep
 
     const propertyDescriptors = dependencyKeys.reduce(
       (out, i) => ({
@@ -31,9 +31,8 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
     Object.defineProperties(boundDependencies, propertyDescriptors)
 
     storeCache.dispatch({ type: `${name}(...` })
-    boundDependencies.args = args
 
-    const output = inner(boundDependencies) as any
+    const output = inner(boundDependencies, ...args) as any
 
     if (output?.then) {
       output.then(
@@ -47,7 +46,7 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
         }
       )
     } else {
-      storeCache.dispatch({ type: `${name}()` })
+      storeCache.dispatch({ type: `${name}...)` })
     }
 
     return output
@@ -78,7 +77,7 @@ export class CommandBuilder {
     return new CommandBuilderWithDependencies(this.name, dependencies)
   }
 
-  as<TArgs extends any[], TOut>(inner: (o: CommandArgs<{}, TArgs>) => TOut) {
+  as<TArgs extends unknown[], TOut>(inner: CommandInner<{}, TArgs, TOut>) {
     return makeCommand<{}, TArgs, TOut>(this.name, {}, inner)
   }
 }
@@ -92,7 +91,7 @@ export class CommandBuilderWithDependencies<TDep> {
     this.dependencies = dependencies
   }
 
-  as<TArgs extends any[], TOut>(inner: (o: CommandArgs<TDep, TArgs>) => TOut) {
+  as<TArgs extends unknown[], TOut>(inner: (o: TDep, ...args: TArgs) => TOut) {
     return makeCommand<TDep, TArgs, TOut>(this.name, this.dependencies, inner)
   }
 }
