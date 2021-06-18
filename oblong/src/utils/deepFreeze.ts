@@ -7,3 +7,6 @@ export const deepFreeze = (object) => {
 
   return Object.freeze(object)
 }
+
+export const deepFreezeDev =
+  process.env.NODE_ENV === 'production' ? (i) => i : deepFreeze

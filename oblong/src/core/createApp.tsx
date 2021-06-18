@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Provider } from 'react-redux'
 import { createStore, Reducer, Store } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import { autoReducer } from '../foundation/auto-reducer'
+import { autoReducer } from '../internals/auto-reducer'
 
 export type OblongConfig = {
   createStore: (reducer: Reducer<unknown, any>) => Store<unknown, any>

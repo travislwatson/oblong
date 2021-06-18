@@ -1,42 +1,45 @@
 # What is Oblong?
 
-Oblong is a Typescript UI framework for helping you develop client applications efficiently with just the right amount of boilerplate.
+Oblong is a UI framework for helping you develop client applications efficiently with just the right amount of boilerplate.
 
 It intends to be a meta framework: as long as the developer experience is uniform and complete, existing popular libraries are used instead of reinventing the wheel. The benefit of this approach is that you get a clean and cohesive development experience while having the stability, performance, and feature-set (through escape hatches) of the underlying battle-tested libraries.
-
-# Architecture
-
-Oblong embraces one way data flow using the core four pieces:
-
-1. **State** is for any value you want to store and change
-2. **Views** are how you render your app and handle user inputs
-3. **Commands** perform any work such as making API calls
-4. **Queries** keep state clean by computing derived state efficiently
 
 # Installation
 
 Available through npm: `npm i oblong`
 
-`createApp` is where you configure Oblong. All configuration is optional except at least one route:
+Import `createApp` to create an `<OblongApp>` component. This function call is for you to configure Oblong. All configuration is optional, so a basic setup could be as simple as:
 
 ```tsx
 import { createApp } from 'oblong'
-import { Home } from './home'
+import { YourCode } from './home'
 
-export const App = createApp({
-  routes: {
-    '/': Home,
-  },
-})
+const OblongApp = createApp()
+
+export const App = () => (
+  <OblongApp>
+    <YourCode />
+  </OblongApp>
+)
 ```
 
-You can use Oblong anywhere you can use React. Use the generated App component as you normally would. Here's a web example:
+The rest of your setup is up to you: you can use Oblong anywhere you can use React. A web example could be as simple as:
 
 ```tsx
 import { render } from 'react-dom'
 import { App } from './app'
 
 render(<App />, document.getElementById('root'))
+```
+
+# Next Steps
+
+Use the "Big O" export from Oblong. Your Intellisense should guide you through usage, but for more information, see the documentation.
+
+```tsx
+import { O } from 'oblong'
+
+const name = O.state('name').as('John Doe')
 ```
 
 # Disclaimer

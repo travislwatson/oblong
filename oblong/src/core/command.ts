@@ -3,7 +3,7 @@ import {
   Dependencies,
   CommandArgs,
   Injectable,
-} from '../foundation/types'
+} from '../internals/types'
 import { makeId } from '../utils/makeId'
 
 const makeCommand = <TDep, TArgs extends unknown[], TOut>(
@@ -35,7 +35,7 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
 
     const output = inner(boundDependencies) as any
 
-    if (output.then) {
+    if (output?.then) {
       output.then(
         (i) => {
           storeCache.dispatch({ type: `${name}.then()` })

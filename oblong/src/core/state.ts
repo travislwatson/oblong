@@ -1,9 +1,9 @@
 import { Selector } from 'reselect'
 import { shallowEqual } from 'react-redux'
-import { State, isQueryable, Queryable } from '../foundation/types'
-import { deepFreeze } from '../utils/deepFreeze'
-import { makeLocatorSelector } from '../foundation/makeLocatorSelector'
-import { makeLocatorActionCreator } from '../foundation/makeLocatorActionCreator'
+import { State, isQueryable, Queryable } from '../internals/types'
+import { deepFreezeDev } from '../utils/deepFreeze'
+import { makeLocatorSelector } from '../internals/makeLocatorSelector'
+import { makeLocatorActionCreator } from '../internals/makeLocatorActionCreator'
 
 type EqualityChecker<T> = (from: T, to: T) => boolean
 const equalityFns = {
@@ -22,9 +22,11 @@ const makeState = <T>(
   equality: EqualityFn<T>,
   defaultValue: DefaultValue<T>
 ): State<T> => {
-  const equalityFn = (typeof equality === 'function'
-    ? equality
-    : equalityFns[equality] ?? equalityFns.exact) as EqualityChecker<T>
+  const equalityFn = (
+    typeof equality === 'function'
+      ? equality
+      : equalityFns[equality] ?? equalityFns.exact
+  ) as EqualityChecker<T>
 
   const actionCreator = makeLocatorActionCreator<T>(locator)
 
@@ -42,7 +44,7 @@ const makeState = <T>(
       set: (newValue: T) => {
         if (equalityFn(selector(store.getState()), newValue)) return
 
-        if (process.env.NODE_ENV !== 'production') deepFreeze(newValue)
+        deepFreezeDev(newValue)
 
         store.dispatch(actionCreator(newValue))
       },

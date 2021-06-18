@@ -4,9 +4,9 @@ import {
   QueryDependencies,
   isQueryable,
   Queryable,
-} from '../foundation/types'
-import { deepFreeze } from '../utils/deepFreeze'
-import { fromSelector } from '../injectables/fromSelector'
+} from '../internals/types'
+import { deepFreezeDev } from '../utils/deepFreeze'
+import { fromSelector } from '../experimental/fromSelector'
 
 const makeQuery = <TDep, TOut>(
   name: string,
@@ -32,7 +32,7 @@ const makeQuery = <TDep, TOut>(
       ) as any
     )
 
-    if (process.env.NODE_ENV !== 'production') deepFreeze(output)
+    deepFreezeDev(output)
 
     return output
   }
@@ -57,7 +57,7 @@ export class QueryBuilder<TDep> {
     this.dependencies = dependencies as any
     // TODO, this isn't the proper type for left part of Omit, it should be `this`
     // but I can't change the generic...
-    return (this as unknown) as Omit<QueryBuilder<TNewDep>, 'with'>
+    return this as unknown as Omit<QueryBuilder<TNewDep>, 'with'>
   }
 
   // TODO make sure TOut isn't void

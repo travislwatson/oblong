@@ -1,14 +1,14 @@
 {
   "name": "oblong",
-  "version": "0.3.1",
+  "version": "0.4.2",
   "description": "Meta-framework for productive React+Redux development",
-  "main": "dist/main.js",
-  "module": "dist/main.js",
-  "types": "dist/main.d.ts",
+  "main": "dist/oblong.js",
+  "module": "dist/oblong.js",
+  "types": "dist/oblong.d.ts",
   "sideEffects": false,
   "scripts": {
     "start": "tsc -w",
-    "prepublishOnly": "tsc"
+    "prepublishOnly": "rm -rf dist && tsc"
   },
   "repository": {
     "type": "git",

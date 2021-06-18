@@ -1,4 +1,4 @@
-import { Queryable, isQueryable, Injectable } from '../foundation/types'
+import { Queryable, isQueryable, Injectable } from '../internals/types'
 import { Selector } from 'reselect'
 
 export const fromSelector = <TOut>(

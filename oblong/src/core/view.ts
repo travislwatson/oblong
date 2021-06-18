@@ -7,18 +7,15 @@ import {
   OblongStore,
   isQueryable,
   Queryable,
-} from '../foundation/types'
+} from '../internals/types'
 
-const always = () => true
 const noop = () => {}
 const makeView = <TDep extends {}, TProps>(
   name: string,
   deps: Dependencies<TDep>,
-  renderCondition: (o: TDep) => boolean,
   inner: React.FC<TDep & TProps>
 ) => {
   deps = deps ?? ({} as any)
-  renderCondition = renderCondition ?? always
 
   if (name && !inner.name) {
     inner.displayName = name
@@ -67,17 +64,13 @@ const makeView = <TDep extends {}, TProps>(
     Object.defineProperties(o, propertyDescriptors)
     Object.assign(o, props)
 
-    // TODO think about this. We can't conditionally call inner because if
-    // it has hooks, then conditionally rendering changes hook execution
-    const innerOutput = inner(o as TDep & TProps)
-
-    return renderCondition(o) ? innerOutput : null
+    return inner(o as TDep & TProps)
   }
 
   unmemoized.displayName =
     name || inner.name ? `${name || inner.name}View` : 'UnnamedView'
 
-  const output = (React.memo(unmemoized) as unknown) as View<TDep, TProps>
+  const output = React.memo(unmemoized) as unknown as View<TDep, TProps>
 
   output.inner = inner
 
@@ -96,14 +89,13 @@ export class ViewBuilder {
   }
 
   as<TProps = unknown>(inner: React.FC<TProps>) {
-    return makeView(this.name, {}, always, inner)
+    return makeView(this.name, {}, inner)
   }
 }
 
 export class ViewBuilderWithDependencies<TDep> {
   private name: string
   private dependencies: Dependencies<TDep>
-  private renderCondition: (o: TDep) => boolean
 
   constructor(name: string, dependencies: Dependencies<TDep>) {
     this.name = name
@@ -111,12 +103,7 @@ export class ViewBuilderWithDependencies<TDep> {
   }
 
   as<TProps = unknown>(inner: React.FC<TDep & TProps>) {
-    return makeView<TDep, TProps>(
-      this.name,
-      this.dependencies,
-      this.renderCondition,
-      inner
-    )
+    return makeView<TDep, TProps>(this.name, this.dependencies, inner)
   }
 }
 
