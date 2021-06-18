@@ -120,7 +120,7 @@ const doWeirdRaw = (name: string, age: number) => ({
   payload: { name, age },
 })
 const doWeird = fromActionCreator(doWeirdRaw)
-const DoWierdTest = O.view('DoWierdTest')
+const DoWeirdTest = O.view('DoWeirdTest')
   .with({ doWeird })
   .as((o) => (
     <div>
@@ -161,7 +161,7 @@ export const App = () => (
     <Greeter />
     <Profile placeholder="Name" />
     <TrySomething />
-    <DoWierdTest />
+    <DoWeirdTest />
     <Hydrate />
   </>
 )

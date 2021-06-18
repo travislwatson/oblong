@@ -1,6 +1,6 @@
 {
   "name": "oblong",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Meta-framework for productive React+Redux development",
   "main": "dist/oblong.js",
   "module": "dist/oblong.js",
