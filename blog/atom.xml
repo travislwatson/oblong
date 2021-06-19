@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://travislwatson.github.io/blog</id>
+    <title>Oblong Blog</title>
+    <updated>2021-05-29T00:00:00.000Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://travislwatson.github.io/blog"/>
+    <subtitle>Oblong Blog</subtitle>
+    <icon>https://travislwatson.github.io/img/favicon.ico</icon>
+    <entry>
+        <title type="html"><![CDATA[Introducing Oblong]]></title>
+        <id>introducing-oblong</id>
+        <link href="https://travislwatson.github.io/oblong/blog/introducing-oblong"/>
+        <updated>2021-05-29T00:00:00.000Z</updated>
+        <summary type="html"><![CDATA[TODO write introduction]]></summary>
+    </entry>
+</feed>

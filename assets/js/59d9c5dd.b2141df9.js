@@ -1,0 +1,1 @@
+(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[498],{6185:function(o){"use strict";o.exports=JSON.parse('{"oblong":{"allTagsPath":"/oblong/blog/tags","slug":"oblong","name":"oblong","count":1,"permalink":"/oblong/blog/tags/oblong"}}')}}]);

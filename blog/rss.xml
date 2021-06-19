@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Oblong Blog</title>
+        <link>https://travislwatson.github.io/blog</link>
+        <description>Oblong Blog</description>
+        <lastBuildDate>Sat, 29 May 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Introducing Oblong]]></title>
+            <link>https://travislwatson.github.io/oblong/blog/introducing-oblong</link>
+            <guid>introducing-oblong</guid>
+            <pubDate>Sat, 29 May 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[TODO write introduction]]></description>
+        </item>
+    </channel>
+</rss>
