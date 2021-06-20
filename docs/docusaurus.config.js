@@ -2,8 +2,8 @@
 module.exports = {
   title: 'Oblong',
   tagline: 'Developer First UI Framework',
-  url: 'https://oblong.travislwatson.com',
-  baseUrl: '/',
+  url: 'https://travislwatson.github.io',
+  baseUrl: '/oblong/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
@@ -39,11 +39,11 @@ module.exports = {
           items: [
             {
               label: 'Quick Start',
-              to: '/docs/Quick Start',
+              to: '/docs/quick-start',
             },
             {
-              label: 'Tutorial',
-              to: '/docs/intro',
+              label: 'Architecture',
+              to: '/docs/architecture',
             },
           ],
         },

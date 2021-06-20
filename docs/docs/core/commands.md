@@ -34,11 +34,34 @@ Your command body is just a function with a special first argument: "little o." 
 
 #### Extra Arguments
 
-TODO
+If your command can inject its dependencies, it should. But some things will require an argument or two. Commands support this out of the box, just take extra arguments after Little o:
+
+```tsx
+const doSomething = O.command('doSomething')
+  .with({ count })
+  .as((o, howManyToAdd: number) => {
+    o.count = o.count + howManyToAdd
+  })
+
+// Call like: o.incrementCount(1)
+```
+
+There's no opportunity for type inference here unfortunately: you'll need to explicitly type your command arguments.
 
 #### Return Value
 
-TODO
+Normally your commands will cause some side effect or a state change. Sometimes, however, it can be useful for them to return information instead of (or in addition to) side effects. Your intuition should be correct here: you can return as you would from any normal function:
+
+```tsx
+const doSomething = O.command('doSomething')
+  .with({ count })
+  .as((o): string => {
+    o.count = o.count + 1
+    return `${o.count} is new count.`
+  })
+```
+
+While type inference would have worked in this case, it won't always work. Explicit return types are recommended whenever the command's return value is significant.
 
 ## Subscriptions
 
