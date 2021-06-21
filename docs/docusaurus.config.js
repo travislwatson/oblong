@@ -1,7 +1,7 @@
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Oblong',
-  tagline: 'Developer First UI Framework',
+  tagline: 'Developer Focused UI Framework',
   url: 'https://travislwatson.github.io',
   baseUrl: '/oblong/',
   onBrokenLinks: 'throw',
@@ -13,7 +13,7 @@ module.exports = {
     navbar: {
       title: 'Oblong',
       logo: {
-        alt: 'My Site Logo',
+        alt: 'Oblong Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -42,7 +42,7 @@ module.exports = {
               to: '/docs/quick-start',
             },
             {
-              label: 'Architecture',
+              label: '❤️ Architecture',
               to: '/docs/architecture',
             },
           ],

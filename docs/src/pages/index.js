@@ -13,7 +13,9 @@ function HomepageHeader() {
       <div className="container">
         <h1 className="hero__title">{siteConfig.title}</h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
-        <div className={styles.buttons}>TODO</div>
+        <div className={styles.buttons}>
+          Build awesomer React+Redux applications, and ❤️ doing it!
+        </div>
       </div>
     </header>
   )
