@@ -1,3 +1,5 @@
+[Click here for Oblong documentation](https://travislwatson.github.io/oblong/)
+
 # What is Oblong?
 
 Oblong is a UI framework for helping you develop client applications efficiently with just the right amount of boilerplate.
