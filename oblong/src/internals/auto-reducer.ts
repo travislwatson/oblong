@@ -35,3 +35,33 @@ export const autoReducer = (previousState = {}, action): OblongState => {
 
   return hasChanges ? maybeNewState : previousState
 }
+
+// This is used to support top level "legacy" reducers
+export const makeComplexAutoReducer = (otherReducers: {
+  [key: string]: any
+}) => {
+  const reducerEntries = Object.entries(otherReducers)
+
+  return (state = {}, action): OblongState => {
+    let hasUpdates = false
+    const newOtherState = {}
+
+    for (const [prop, reducer] of reducerEntries) {
+      newOtherState[prop] = reducer(state[prop], action)
+      hasUpdates = hasUpdates || newOtherState[prop] !== state[prop]
+
+      console.log({
+        prop,
+        hasUpdates,
+        newState: newOtherState[prop],
+        oldState: state[prop],
+      })
+    }
+
+    // autoReducer will just ignore other properties, so it can and must be passed the entire state
+    const newOblongState = autoReducer(state, action)
+    hasUpdates = hasUpdates || newOblongState !== state
+
+    return hasUpdates ? { ...newOblongState, ...newOtherState } : state
+  }
+}

@@ -3,7 +3,11 @@ import ReactDOM from 'react-dom'
 import { createApp } from 'oblong'
 import { App } from './App'
 
-const OblongApp = createApp()
+const OblongApp = createApp({
+  otherReducers: {
+    foo: (prev: number = 0, action: any) => prev + 1,
+  },
+})
 
 ReactDOM.render(
   <React.StrictMode>

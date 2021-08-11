@@ -1,15 +1,17 @@
 import * as React from 'react'
 import { Provider } from 'react-redux'
-import { createStore, Reducer, Store } from 'redux'
+import { createStore, Reducer, Store, ReducersMapObject } from 'redux'
 import { composeWithDevTools } from 'redux-devtools-extension'
-import { autoReducer } from '../internals/auto-reducer'
+import { autoReducer, makeComplexAutoReducer } from '../internals/auto-reducer'
 
 export type OblongConfig = {
-  createStore: (reducer: Reducer<unknown, any>) => Store<unknown, any>
+  createStore?: (reducer: Reducer<unknown, any>) => Store<unknown, any>
+  otherReducers?: ReducersMapObject<any, any>
 }
 
 const defaults: OblongConfig = {
   createStore: (reducer) => createStore(reducer, composeWithDevTools()),
+  otherReducers: null,
 }
 
 export const createApp = (config: OblongConfig = defaults): React.FC => {
@@ -18,7 +20,11 @@ export const createApp = (config: OblongConfig = defaults): React.FC => {
     ...config,
   }
 
-  const store = actualConfig.createStore(autoReducer)
+  const store = actualConfig.createStore(
+    actualConfig.otherReducers
+      ? makeComplexAutoReducer(actualConfig.otherReducers)
+      : autoReducer
+  )
 
   return React.memo((props) => (
     <Provider store={store}>
