@@ -49,13 +49,6 @@ export const makeComplexAutoReducer = (otherReducers: {
     for (const [prop, reducer] of reducerEntries) {
       newOtherState[prop] = reducer(state[prop], action)
       hasUpdates = hasUpdates || newOtherState[prop] !== state[prop]
-
-      console.log({
-        prop,
-        hasUpdates,
-        newState: newOtherState[prop],
-        oldState: state[prop],
-      })
     }
 
     // autoReducer will just ignore other properties, so it can and must be passed the entire state
