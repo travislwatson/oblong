@@ -45,3 +45,15 @@ const OblongApp = createOblongApp({
   otherReducers: { actionCount },
 })
 ```
+
+### `commandDebugLevel`
+
+Command execution can be logged either in Redux or in the console.
+
+```tsx
+const OblongApp = createOblongApp({
+  commandDebugLevel: 'redux-detailed',
+})
+```
+
+Additional options are: `redux-single` and `console`. The default is `none`.

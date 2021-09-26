@@ -1,15 +1,20 @@
 import * as React from 'react'
-import { Store, Reducer } from 'redux'
-import { History } from 'history'
+import { Store } from 'redux'
 import { Selector } from 'reselect'
 
 export type OblongState = any
 
+export type CommandDebugLevel =
+  | 'none'
+  | 'redux-single'
+  | 'redux-detailed'
+  | 'console'
+export type OblongStoreExtension = {
+  commandDebugLevel: CommandDebugLevel
+}
+
 export interface OblongStore extends Store {
-  history: History
-  registerReducer: (location: string, reducer: Reducer) => void
-  registerEventHandler: (event: Event, command: Command<any, [], any>) => void
-  eventHandlers: { [k: string]: Command<any, [], any>[] }
+  oblong: OblongStoreExtension
 }
 
 export interface PropertyDefinition<T> {

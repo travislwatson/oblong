@@ -9,6 +9,7 @@ module.exports = {
   favicon: 'img/favicon.ico',
   organizationName: 'travislwatson',
   projectName: 'oblong',
+  trailingSlash: true,
   themeConfig: {
     navbar: {
       title: 'Oblong',

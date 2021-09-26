@@ -7,6 +7,7 @@ const OblongApp = createApp({
   otherReducers: {
     foo: (prev: number = 0, action: any) => prev + 1,
   },
+  commandDebugLevel: 'redux-single',
 })
 
 ReactDOM.render(

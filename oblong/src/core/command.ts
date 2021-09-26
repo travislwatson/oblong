@@ -3,6 +3,8 @@ import {
   Dependencies,
   CommandInner,
   Injectable,
+  OblongStoreExtension,
+  OblongStore,
 } from '../internals/types'
 import { makeId } from '../utils/makeId'
 
@@ -15,7 +17,61 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
   name = name ?? `?${makeId()}`
 
   const dependencyKeys = Object.keys(deps)
-  let storeCache
+  let storeCache: OblongStore
+  let logStart = () => {
+    switch (storeCache.oblong.commandDebugLevel) {
+      case 'none':
+        break
+      case 'redux-single':
+        storeCache.dispatch({ type: `${name}()` })
+        break
+      case 'redux-detailed':
+        storeCache.dispatch({ type: `${name}(...` })
+        break
+      case 'console':
+        console.log(`${name}(...`)
+        break
+    }
+  }
+  let logEnd = () => {
+    switch (storeCache.oblong.commandDebugLevel) {
+      case 'none':
+      case 'redux-single':
+        break
+      case 'redux-detailed':
+        storeCache.dispatch({ type: `${name}(...)` })
+        break
+      case 'console':
+        console.log(`${name}(...)`)
+        break
+    }
+  }
+  let logThen = () => {
+    switch (storeCache.oblong.commandDebugLevel) {
+      case 'none':
+      case 'redux-single':
+        break
+      case 'redux-detailed':
+        storeCache.dispatch({ type: `${name}.then()` })
+        break
+      case 'console':
+        console.log(`${name}.then()`)
+        break
+    }
+  }
+  let logCatch = () => {
+    switch (storeCache.oblong.commandDebugLevel) {
+      case 'none':
+      case 'redux-single':
+        break
+      case 'redux-detailed':
+        storeCache.dispatch({ type: `${name}.catch()` })
+        break
+      case 'console':
+        console.log(`${name}.catch()`)
+        break
+    }
+  }
 
   const bound = (...args: TArgs) => {
     const boundDependencies = {} as TDep
@@ -30,23 +86,14 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
 
     Object.defineProperties(boundDependencies, propertyDescriptors)
 
-    storeCache.dispatch({ type: `${name}(...` })
+    logStart()
 
     const output = inner(boundDependencies, ...args) as any
 
     if (output?.then) {
-      output.then(
-        (i) => {
-          storeCache.dispatch({ type: `${name}.then()` })
-          return i
-        },
-        (i) => {
-          storeCache.dispatch({ type: `${name}.catch()` })
-          return i
-        }
-      )
+      output.then(logThen, logCatch)
     } else {
-      storeCache.dispatch({ type: `${name}...)` })
+      logEnd()
     }
 
     return output
@@ -57,6 +104,7 @@ const makeCommand = <TDep, TArgs extends unknown[], TOut>(
     name,
     resolve: (store) => {
       storeCache = store
+
       return {
         get: () => bound,
       }
